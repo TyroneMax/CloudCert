@@ -1,0 +1,26 @@
+---
+description: All code must follow design docs (Cursor.md + docs/) and keep them in sync
+alwaysApply: true
+---
+
+# Follow Design Documents
+
+## Source of Truth
+
+- `Cursor.md` is the project master design document (总纲)
+- `docs/` contains detailed feature design documents
+- Together they form the complete design system. All code MUST conform to them.
+
+## Before Writing Code
+
+1. Read `Cursor.md` for overall architecture, tech stack, database schema, and conventions
+2. Read the relevant `docs/design-*.md` for the feature you are implementing
+3. Follow the specified tech stack, naming conventions, database schema, RLS policies, and UX standards exactly
+
+## When Design Changes
+
+If implementation requires deviating from the design docs (new fields, changed logic, different API shape, etc.):
+
+1. **Update the design doc first** — modify the relevant `docs/design-*.md` and/or `Cursor.md`
+2. **Keep docs in sync** — if a change touches schema, update both the ER diagram and the detailed table description in `Cursor.md`
+3. **Never leave docs stale** — code and docs must always match after every change

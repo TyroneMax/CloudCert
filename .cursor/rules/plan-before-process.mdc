@@ -1,0 +1,29 @@
+---
+description: Require creating and getting approval on a plan document before any implementation work
+alwaysApply: true
+---
+
+# Plan Before Process
+
+Before starting any implementation or code change, you MUST follow this workflow:
+
+## Step 1: Create a Plan Document
+
+- Analyze the user's request and create a detailed plan document (e.g., `plan.md` or a relevant name).
+- The plan should include:
+  - **Goal**: What the task aims to achieve
+  - **Approach**: How you intend to implement it
+  - **Steps**: Ordered list of concrete steps
+  - **Files affected**: Which files will be created, modified, or deleted
+  - **Risks / trade-offs**: Any concerns or alternative approaches considered
+
+## Step 2: Wait for User Sign-off
+
+- Present the plan to the user and explicitly ask for approval.
+- Do NOT proceed with any implementation until the user confirms or signs off on the plan.
+- If the user requests changes to the plan, update it and ask for sign-off again.
+
+## Step 3: Execute
+
+- Only after receiving explicit user approval, begin implementation following the approved plan.
+- If significant deviations from the plan are needed during implementation, pause and inform the user before continuing.
