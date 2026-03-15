@@ -5,13 +5,14 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+    /* === Shadcn/UI base tokens === */
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
+    --primary: oklch(0.546 0.245 262.881);
     --primary-foreground: oklch(0.985 0 0);
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
@@ -22,7 +23,7 @@
     --destructive: oklch(0.577 0.245 27.325);
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
+    --ring: oklch(0.546 0.245 262.881);
     --chart-1: oklch(0.809 0.105 251.813);
     --chart-2: oklch(0.623 0.214 259.815);
     --chart-3: oklch(0.546 0.245 262.881);
@@ -31,12 +32,33 @@
     --radius: 0.625rem;
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary: oklch(0.546 0.245 262.881);
     --sidebar-primary-foreground: oklch(0.985 0 0);
     --sidebar-accent: oklch(0.97 0 0);
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+
+    /* === CloudCert Design Tokens === */
+    --color-brand-primary: #2563EB;
+    --color-brand-primary-hover: #1D4ED8;
+    --color-brand-primary-light: #DBEAFE;
+
+    --color-success: #16A34A;
+    --color-success-light: #DCFCE7;
+    --color-error: #DC2626;
+    --color-error-light: #FEE2E2;
+    --color-warning: #D97706;
+    --color-warning-light: #FEF3C7;
+    --color-info: #2563EB;
+
+    --color-bg: #FFFFFF;
+    --color-bg-secondary: #F9FAFB;
+    --color-bg-tertiary: #F3F4F6;
+    --color-border-custom: #E5E7EB;
+    --color-text-primary: #111827;
+    --color-text-secondary: #6B7280;
+    --color-text-tertiary: #9CA3AF;
 }
 
 .dark {
@@ -46,7 +68,7 @@
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.205 0 0);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
+    --primary: oklch(0.623 0.214 259.815);
     --primary-foreground: oklch(0.205 0 0);
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
@@ -57,7 +79,7 @@
     --destructive: oklch(0.704 0.191 22.216);
     --border: oklch(1 0 0 / 10%);
     --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
+    --ring: oklch(0.623 0.214 259.815);
     --chart-1: oklch(0.809 0.105 251.813);
     --chart-2: oklch(0.623 0.214 259.815);
     --chart-3: oklch(0.546 0.245 262.881);
@@ -74,7 +96,9 @@
 }
 
 @theme inline {
-    --font-sans: var(--font-sans);
+    --font-sans: var(--font-plus-jakarta);
+    --font-mono: var(--font-jetbrains-mono);
+
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -118,11 +142,31 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
     @apply bg-background text-foreground;
-    }
+  }
   html {
-    @apply font-sans;
-    }
+    @apply font-sans scroll-smooth;
+  }
+  html[lang="zh"] {
+    font-family: var(--font-noto-sc), system-ui, sans-serif;
+  }
+  html[lang="ja"] {
+    font-family: var(--font-zen-kaku), system-ui, sans-serif;
+  }
+  html[lang="ko"] {
+    font-family: var(--font-gothic-a1), system-ui, sans-serif;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

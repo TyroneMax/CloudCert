@@ -41,8 +41,8 @@ src/
 ├── messages/
 │   ├── en.json             # 英文翻译
 │   ├── zh.json             # 中文翻译
-│   ├── ja.json             # 日文翻译（未来）
-│   └── ko.json             # 韩文翻译（未来）
+│   ├── ja.json             # 日文翻译
+│   └── ko.json             # 韩文翻译
 └── app/
     └── [locale]/           # 国际化路由
         ├── layout.tsx
@@ -214,8 +214,8 @@ function getSuggestedLanguage(request: NextRequest): string {
   // 2. 国家 → 语言映射
   const countryToLanguage: Record<string, string> = {
     CN: 'zh', TW: 'zh', HK: 'zh',  // 中文地区
-    JP: 'ja',                        // 日本（未来）
-    KR: 'ko',                        // 韩国（未来）
+    JP: 'ja',                        // 日本
+    KR: 'ko',                        // 韩国
   };
 
   const geoLang = country ? countryToLanguage[country] : undefined;
@@ -264,20 +264,38 @@ function getSuggestedLanguage(request: NextRequest): string {
 2. **未登录用户**：从 `localStorage` 读取
 3. **首次访问**：IP 地理定位 → 浏览器语言 → 弹出选择 Modal（推荐语言预选中）
 
-## 第一阶段支持语言
+## 支持语言
 
 | 语言代码 | 语言 | UI 翻译 | 内容翻译 |
 |---------|------|---------|---------|
 | `en` | English | ✅ | ✅（基础语言） |
 | `zh` | 中文 | ✅ | ✅ |
+| `ja` | 日本語 | ✅ | ✅ |
+| `ko` | 한국어 | ✅ | ✅ |
 
-### 未来扩展
+### 扩展新语言
 
 添加新语言时需要：
 1. 添加 `/messages/{lang}.json` 翻译文件
 2. 更新 next-intl routing 配置的 `locales` 数组
-3. 在数据库翻译表中添加对应语言的翻译记录
-4. 更新语言选择 Modal 的选项列表
+3. 更新 `middleware.ts` 的 matcher 和 locale 正则
+4. 在数据库翻译表中添加对应语言的翻译记录
+5. 更新 Navbar 的 `localeOptions` 数组
+
+## 各语言字体配置
+
+每种语言使用最适合其文字系统的字体，按 locale 动态加载以优化性能：
+
+| 语言 | 字体 | CSS 变量 | 说明 |
+|------|------|---------|------|
+| English | Plus Jakarta Sans | `--font-plus-jakarta` | 现代圆润无衬线体，默认字体 |
+| 中文 | Noto Sans SC | `--font-noto-sc` | 思源黑体，专业简体中文字体 |
+| 日本語 | Zen Kaku Gothic New | `--font-zen-kaku` | 精致现代日文哥特体 |
+| 한국어 | Gothic A1 | `--font-gothic-a1` | 韩国本土流行字体 |
+| 代码 | JetBrains Mono | `--font-jetbrains-mono` | 所有语言共用等宽字体 |
+
+- CJK 字体设置 `preload: false`，仅在对应 locale 页面时由浏览器按需下载
+- 通过 `html[lang="xx"]` CSS 选择器覆盖默认字体，确保正确继承
 
 ## 技术实现要点
 

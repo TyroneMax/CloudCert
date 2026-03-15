@@ -1,105 +1,90 @@
-# 实施计划：应用骨架 + Landing Page
+# 实施计划：i18n 国际化 + 认证系统
 
 ## 目标
 
-搭建 CloudCert 项目的 Next.js 应用骨架，并实现完整的 Landing Page 页面。
+1. 集成 next-intl 实现 UI 国际化（EN + ZH），重构路由为 `/[locale]/...` 结构
+2. 集成 Supabase Auth 实现 Google OAuth + Email/Password 登录注册
+3. 实现受保护路由中间件
 
-## 技术栈（遵循 Cursor.md）
+## 技术栈
 
 | 项目 | 版本 |
 |------|------|
-| Next.js (App Router) | 16.x |
-| React | 19.x |
-| TypeScript | 5.9.x |
-| Tailwind CSS | 4.x |
-| Shadcn/UI | latest |
-| next-intl | 4.8.x |
-| Framer Motion (motion/react) | 12.x |
-| 字体 | Inter + JetBrains Mono (via next/font) |
+| next-intl | 4.x |
+| @supabase/supabase-js | latest |
+| @supabase/ssr | latest |
 
 ## 实施步骤
 
-### Phase 1: 项目初始化
+### Phase 1: i18n 国际化
 
-1. **创建 Next.js 16 项目**
-   - `npx create-next-app@latest` with TypeScript, Tailwind CSS 4, App Router
-   - 确保使用 src/ 目录结构
+1. **安装 next-intl**
+2. **创建 i18n 配置**
+   - `src/i18n/routing.ts` — 路由配置（locales: en/zh, defaultLocale: en）
+   - `src/i18n/request.ts` — next-intl server 配置
+3. **创建翻译文件**
+   - `src/messages/en.json` — 英文翻译（Landing Page 所有文案）
+   - `src/messages/zh.json` — 中文翻译
+4. **重构路由结构**
+   - 将 `src/app/` 下所有页面移至 `src/app/[locale]/`
+   - 更新 root layout → locale layout
+5. **配置 Middleware**
+   - 语言检测 + 重定向
+6. **更新 Landing Page 组件**
+   - 将硬编码文案替换为 `useTranslations()` 调用
+7. **语言切换器组件**
+   - Navbar 添加语言切换下拉菜单
 
-2. **安装依赖**
-   - `motion` (Framer Motion 12)
-   - `next-intl`（暂仅配置 en，预留 i18n 结构）
-   - Shadcn/UI 初始化 + 需要的组件（Accordion, Button）
+### Phase 2: Supabase Auth 认证
 
-3. **配置 Design Tokens**
-   - 在 Tailwind/CSS 中配置 UX 标准文档中的颜色变量
-   - 配置字体（Inter + JetBrains Mono）
-
-### Phase 2: 应用骨架
-
-4. **目录结构**
-   ```
-   src/
-   ├── app/
-   │   ├── layout.tsx          # Root Layout（字体、metadata）
-   │   ├── page.tsx            # Landing Page
-   │   ├── globals.css         # 全局样式 + Design Tokens
-   │   ├── auth/
-   │   │   ├── login/page.tsx  # 占位
-   │   │   └── register/page.tsx # 占位
-   │   ├── dashboard/page.tsx  # 占位
-   │   ├── certifications/page.tsx # 占位
-   │   ├── practice/[certId]/page.tsx # 占位
-   │   ├── wrong-answers/page.tsx # 占位
-   │   ├── search/page.tsx     # 占位
-   │   ├── roadmap/page.tsx    # 占位
-   │   └── settings/page.tsx   # 占位
-   ├── components/
-   │   ├── layout/
-   │   │   ├── navbar.tsx      # 导航栏（Landing + 通用）
-   │   │   └── footer.tsx      # 页脚
-   │   └── landing/
-   │       ├── hero-section.tsx
-   │       ├── certifications-section.tsx
-   │       ├── features-section.tsx
-   │       ├── how-it-works-section.tsx
-   │       ├── pricing-section.tsx
-   │       ├── testimonials-section.tsx
-   │       ├── faq-section.tsx
-   │       └── cta-section.tsx
-   └── lib/
-       └── utils.ts            # 工具函数（cn 等）
-   ```
-
-### Phase 3: Landing Page 实现
-
-5. **Navbar** — sticky 顶部导航，桌面水平链接 + 移动端汉堡菜单
-6. **Hero Section** — 主标题 + 副标题 + 双 CTA 按钮 + 动画
-7. **Supported Certifications** — AWS/Azure/GCP 图标网格，Coming Soon 标记
-8. **Features Section** — 4 个核心功能卡片
-9. **How It Works** — 3 步流程
-10. **Pricing Section** — Free / Pro 对比表
-11. **Testimonials** — 用户评价卡片（占位内容）
-12. **FAQ Section** — Shadcn Accordion 折叠面板
-13. **Final CTA** — 引导注册
-14. **Footer** — 链接、版权信息
-
-### Phase 4: UX 标准
-
-15. **响应式** — Mobile / Tablet / Desktop 三断点适配
-16. **动画** — Framer Motion 页面进入动画、Hover 效果
-17. **无障碍** — 语义化 HTML、aria-label、键盘导航
-18. **prefers-reduced-motion** — 尊重用户动画偏好
+8. **安装 Supabase 依赖**
+   - `@supabase/supabase-js` + `@supabase/ssr`
+9. **创建 Supabase 客户端**
+   - `src/lib/supabase/client.ts` — 浏览器端客户端
+   - `src/lib/supabase/server.ts` — 服务端客户端
+10. **实现登录页** (`/[locale]/auth/login`)
+    - Google OAuth 按钮
+    - Email/Password 表单
+    - 表单验证
+11. **实现注册页** (`/[locale]/auth/register`)
+    - Google OAuth 按钮
+    - Display Name + Email + Password + Confirm Password
+    - 注册后邮箱验证提示
+12. **Auth 回调处理**
+    - `/auth/callback` route — OAuth 回调
+13. **更新 Middleware**
+    - 合并 i18n + Auth Session 检查
+    - 受保护路由重定向
+14. **更新 Navbar**
+    - 已登录：显示用户头像 + 下拉菜单
+    - 未登录：Login / Sign Up 按钮
 
 ## 受影响文件
 
-- 新增：整个 Next.js 项目文件结构
-- 不变：`docs/` 目录、`Cursor.md`、`.cursor/` 配置
+### 新增
+- `src/i18n/routing.ts`
+- `src/i18n/request.ts`
+- `src/messages/en.json`
+- `src/messages/zh.json`
+- `src/middleware.ts`
+- `src/lib/supabase/client.ts`
+- `src/lib/supabase/server.ts`
+- `src/app/[locale]/layout.tsx`
+- `src/app/[locale]/auth/callback/route.ts`
+- `.env.local` (Supabase keys)
+
+### 修改
+- 所有 `src/app/` 下的页面 → 移至 `src/app/[locale]/`
+- Landing Page 组件 → 文案国际化
+- Navbar → 语言切换 + Auth 状态
+
+### 删除
+- `src/app/layout.tsx`（替换为 `src/app/[locale]/layout.tsx`）
 
 ## 风险 / 权衡
 
 | 风险 | 应对 |
 |------|------|
-| Next.js 16 可能尚未稳定发布 | 使用 latest 稳定版（15.x），后续可升级 |
-| Tailwind CSS 4 配置方式与 v3 不同 | 使用 CSS-first 配置方式 |
-| next-intl 暂只配置 en | 预留 i18n 目录结构，后续扩展 |
-| 图片资源暂无 | 使用 SVG 图标 + emoji 占位，后续替换 |
+| next-intl 4.x 与 Next.js 16 兼容性 | 使用 latest 版本，必要时降级 |
+| Supabase 未配置项目 | 先创建代码结构 + `.env.local.example`，用户需自行创建 Supabase 项目 |
+| 路由结构大变 | 一次性迁移所有路由到 `[locale]` 下 |

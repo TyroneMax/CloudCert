@@ -1,23 +1,5 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { Geist } from "next/font/google";
-import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-export const metadata: Metadata = {
-  title: "CloudCert",
-  description: "Pass Your Cloud Certification with Confidence",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
-      <body>{children}</body>
-    </html>
-  );
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return children;
 }
