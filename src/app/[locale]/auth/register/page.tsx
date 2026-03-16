@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Cloud, Loader2, MailCheck } from "lucide-react";
@@ -10,6 +11,8 @@ import { Cloud, Loader2, MailCheck } from "lucide-react";
 export default function RegisterPage() {
   const t = useTranslations("auth");
   const locale = useLocale();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,11 +24,11 @@ export default function RegisterPage() {
   const supabase = createClient();
 
   async function handleGoogleSignUp() {
+    const callbackUrl = new URL(`/${locale}/auth/callback`, window.location.origin);
+    if (redirect) callbackUrl.searchParams.set("next", redirect);
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/${locale}/auth/callback`,
-      },
+      options: { redirectTo: callbackUrl.toString() },
     });
   }
 
@@ -40,12 +43,14 @@ export default function RegisterPage() {
 
     setLoading(true);
 
+    const callbackUrl = new URL(`/${locale}/auth/callback`, window.location.origin);
+    if (redirect) callbackUrl.searchParams.set("next", redirect);
     const { error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { full_name: displayName },
-        emailRedirectTo: `${window.location.origin}/${locale}/auth/callback`,
+        emailRedirectTo: callbackUrl.toString(),
       },
     });
 
@@ -175,7 +180,7 @@ export default function RegisterPage() {
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {t("hasAccount")}{" "}
-            <Link href={`/${locale}/auth/login`} className="font-medium text-blue-600 hover:text-blue-800">
+            <Link href={`/${locale}/auth/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ""}`} className="font-medium text-blue-600 hover:text-blue-800">
               {t("signIn")}
             </Link>
           </p>

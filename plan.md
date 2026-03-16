@@ -1,90 +1,140 @@
-# 实施计划：i18n 国际化 + 认证系统
+# CloudCert 实施计划
 
-## 目标
+> 跟踪项目开发进度，对应 Phase 1: Foundation 阶段
 
-1. 集成 next-intl 实现 UI 国际化（EN + ZH），重构路由为 `/[locale]/...` 结构
-2. 集成 Supabase Auth 实现 Google OAuth + Email/Password 登录注册
-3. 实现受保护路由中间件
+## 已完成
+
+### 1. 项目骨架 ✅
+- Next.js 16 + React 19 + TypeScript 5.9 + Tailwind CSS 4
+- Shadcn/UI 组件库 (Button, Accordion)
+- ESLint + PostCSS 配置
+- `.gitignore` + `.env.local` 环境变量
+
+### 2. Landing Page ✅
+- 8 个 section 完整实现 (Hero, Certifications, Features, How It Works, Pricing, Testimonials, FAQ, CTA)
+- Navbar + Footer 响应式布局
+- Framer Motion 动画
+- 设计文档: `docs/design-landing-page.md`
+
+### 3. i18n 国际化 ✅
+- next-intl 4.8 集成，路由重构为 `/[locale]/...`
+- 4 种语言翻译文件: en / zh / ja / ko
+- Navbar 多语言下拉菜单切换器
+- 设计文档: `docs/design-i18n.md`
+
+### 4. Per-Locale 字体 ✅
+- EN: Plus Jakarta Sans / ZH: Noto Sans SC / JA: Zen Kaku Gothic New / KO: Gothic A1
+- CJK 字体 `preload: false` 按需加载
+- JetBrains Mono 等宽字体 (所有语言共用)
+
+### 5. Supabase 基础集成 ✅
+- 客户端 (`src/lib/supabase/client.ts`) + 服务端 (`src/lib/supabase/server.ts`)
+- Middleware session 管理 (`src/lib/supabase/middleware.ts`)
+- 数据库: `users` + `user_preferences` 表 + RLS + Triggers
+
+### 6. 认证系统 (Auth) ✅
+- 登录页 (`/[locale]/auth/login`) — Google OAuth + Email/Password
+- 注册页 (`/[locale]/auth/register`) — 表单验证 + 邮箱确认提示
+- OAuth 回调 (`/[locale]/auth/callback`)
+- Middleware: i18n 路由 + Auth 受保护路由重定向
+- 设计文档: `docs/design-auth.md`
+
+### 7. Waitlist 候补名单 ✅
+- `waitlist` 表 (email unique, locale, source, created_at) + RLS
+- `WaitlistForm` 组件 — 双变体 (hero 浅色 / cta 深色)
+- Hero Section + CTA Section 集成 waitlist 表单
+- 4 语言翻译 (成功、重复、错误提示)
+- 设计文档: `docs/design-landing-page.md`
+
+---
+
+## 待实施
+
+### 9. 数据库完整 Schema 🔲
+- 创建核心表: `certifications`, `categories`, `questions`, `options`
+- 创建翻译表: `certification_translations`, `category_translations`, `question_translations`, `option_translations`
+- 创建业务表: `user_attempts`（`user_subscriptions` 已创建）
+- 创建管理表: `admin_users`, `audit_logs`, `site_content`, `stripe_events`
+- RLS 策略 + 索引
+- 种子数据: AWS SAA 认证 + 分类 + 示例题目
+
+### 10. Dashboard 仪表盘页面 🔲
+- 学习进度总览 (完成率、正确率)
+- 认证卡片列表 (继续学习 / 开始新认证)
+- 最近学习记录
+- 设计文档: `docs/design-dashboard.md`
+
+### 11. Practice 练习页面 🔲
+- 答题界面 (单选 / 多选)
+- 题目导航 (上一题 / 下一题 / 跳转)
+- 答题状态管理 (未答 / 已答 / 标记)
+- 题目内容多语言切换
+- 进度条显示
+- 设计文档: `docs/design-practice.md`
+
+### 12. Explanation 解析功能 🔲
+- 提交答案后显示详细解析
+- 正确/错误选项分析
+- 解析内容多语言支持
+- 设计文档: `docs/design-explanation.md`
+
+### 13. Wrong Answers 错题本 🔲
+- 自动收集错题记录
+- 按认证 / 分类筛选
+- 重做单题 / 批量重做
+- 设计文档: `docs/design-wrong-answers.md`
+
+### 14. Search 搜索功能 🔲
+- 题目关键词搜索
+- 认证浏览 / 筛选
+- 搜索结果高亮
+- 设计文档: `docs/design-search.md`
+
+### 15. Settings 设置页面 🔲
+- 个人资料编辑 (Display Name, Avatar)
+- 语言偏好 (UI Language, Question Language)
+- 订阅管理入口
+
+### 16. Stripe 支付集成 🔲
+- Checkout 流程 (Monthly / Yearly / Single Cert)
+- Webhook 处理 (订阅状态同步)
+- 免费题目限制逻辑
+- 设计文档: `docs/design-profit-model.md`
+
+### 17. SEO + 性能优化 🔲
+- Meta tags / Open Graph / Structured Data
+- 静态页面预渲染
+- 设计文档: `docs/design-seo.md`
+
+---
+
+## 建议下一步优先级
+
+| 优先级 | 任务 | 理由 |
+|--------|------|------|
+| 🔴 P0 | 数据库完整 Schema (#9) | 所有功能页面依赖数据库表 |
+| 🔴 P0 | Dashboard (#10) | 登录后的核心入口 |
+| 🔴 P0 | Practice 练习页 (#11) | 产品核心功能 |
+| 🟠 P1 | Explanation 解析 (#12) | 与 Practice 紧密关联 |
+| 🟠 P1 | Wrong Answers 错题本 (#13) | 与 Practice 紧密关联 |
+| 🟡 P2 | Search 搜索 (#14) | 辅助功能 |
+| 🟡 P2 | Settings 设置 (#15) | 辅助功能 |
+| 🟡 P2 | Stripe 支付 (#16) | 可后期集成 |
+| ⚪ P3 | SEO (#17) | 上线前完善 |
+
+---
 
 ## 技术栈
 
 | 项目 | 版本 |
 |------|------|
-| next-intl | 4.x |
-| @supabase/supabase-js | latest |
+| Next.js (App Router + Turbopack) | 16.1.x |
+| React | 19.x |
+| TypeScript | 5.9.x |
+| Tailwind CSS | 4.x |
+| Shadcn/UI (Base UI) | latest |
+| next-intl | 4.8.x |
+| @supabase/supabase-js | 2.99.x |
 | @supabase/ssr | latest |
-
-## 实施步骤
-
-### Phase 1: i18n 国际化
-
-1. **安装 next-intl**
-2. **创建 i18n 配置**
-   - `src/i18n/routing.ts` — 路由配置（locales: en/zh, defaultLocale: en）
-   - `src/i18n/request.ts` — next-intl server 配置
-3. **创建翻译文件**
-   - `src/messages/en.json` — 英文翻译（Landing Page 所有文案）
-   - `src/messages/zh.json` — 中文翻译
-4. **重构路由结构**
-   - 将 `src/app/` 下所有页面移至 `src/app/[locale]/`
-   - 更新 root layout → locale layout
-5. **配置 Middleware**
-   - 语言检测 + 重定向
-6. **更新 Landing Page 组件**
-   - 将硬编码文案替换为 `useTranslations()` 调用
-7. **语言切换器组件**
-   - Navbar 添加语言切换下拉菜单
-
-### Phase 2: Supabase Auth 认证
-
-8. **安装 Supabase 依赖**
-   - `@supabase/supabase-js` + `@supabase/ssr`
-9. **创建 Supabase 客户端**
-   - `src/lib/supabase/client.ts` — 浏览器端客户端
-   - `src/lib/supabase/server.ts` — 服务端客户端
-10. **实现登录页** (`/[locale]/auth/login`)
-    - Google OAuth 按钮
-    - Email/Password 表单
-    - 表单验证
-11. **实现注册页** (`/[locale]/auth/register`)
-    - Google OAuth 按钮
-    - Display Name + Email + Password + Confirm Password
-    - 注册后邮箱验证提示
-12. **Auth 回调处理**
-    - `/auth/callback` route — OAuth 回调
-13. **更新 Middleware**
-    - 合并 i18n + Auth Session 检查
-    - 受保护路由重定向
-14. **更新 Navbar**
-    - 已登录：显示用户头像 + 下拉菜单
-    - 未登录：Login / Sign Up 按钮
-
-## 受影响文件
-
-### 新增
-- `src/i18n/routing.ts`
-- `src/i18n/request.ts`
-- `src/messages/en.json`
-- `src/messages/zh.json`
-- `src/middleware.ts`
-- `src/lib/supabase/client.ts`
-- `src/lib/supabase/server.ts`
-- `src/app/[locale]/layout.tsx`
-- `src/app/[locale]/auth/callback/route.ts`
-- `.env.local` (Supabase keys)
-
-### 修改
-- 所有 `src/app/` 下的页面 → 移至 `src/app/[locale]/`
-- Landing Page 组件 → 文案国际化
-- Navbar → 语言切换 + Auth 状态
-
-### 删除
-- `src/app/layout.tsx`（替换为 `src/app/[locale]/layout.tsx`）
-
-## 风险 / 权衡
-
-| 风险 | 应对 |
-|------|------|
-| next-intl 4.x 与 Next.js 16 兼容性 | 使用 latest 版本，必要时降级 |
-| Supabase 未配置项目 | 先创建代码结构 + `.env.local.example`，用户需自行创建 Supabase 项目 |
-| 路由结构大变 | 一次性迁移所有路由到 `[locale]` 下 |
+| Framer Motion (motion/react) | 12.x |
+| JetBrains Mono | Google Fonts |

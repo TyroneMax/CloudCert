@@ -5,7 +5,7 @@ import { updateSession } from "./lib/supabase/middleware";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-const protectedRoutes = ["/dashboard", "/settings", "/wrong-answers"];
+const protectedRoutes = ["/dashboard", "/settings", "/wrong-answers", "/practice"];
 
 export async function middleware(request: NextRequest) {
   const intlResponse = intlMiddleware(request);

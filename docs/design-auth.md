@@ -92,11 +92,12 @@ flowchart TD
 ### 忘记密码页 (`/auth/forgot-password`)
 
 - **布局**：与登录页一致的卡片式设计
+- **实现**：`src/app/[locale]/auth/forgot-password/page.tsx`
 - **流程**：
   1. 用户输入注册邮箱
   2. 调用 `supabase.auth.resetPasswordForEmail(email, { redirectTo })`
   3. 显示提示页 "Check your email for a password reset link"
-  4. 用户点击邮件链接跳转到 `/auth/reset-password`
+  4. 用户点击邮件链接跳转到 `/auth/reset-password`（实现：`src/app/[locale]/auth/reset-password/page.tsx`）
   5. 输入新密码 + 确认密码
   6. 调用 `supabase.auth.updateUser({ password })` 完成重置
   7. 成功后自动登录并跳转 Dashboard
@@ -201,6 +202,24 @@ CREATE POLICY "Users can manage own preferences"
 | 服务终止通知 | Resend / SendGrid | 批量邮件，参见 [design-profit-model.md](design-profit-model.md) |
 
 > 邮件发送统一通过 Supabase Edge Function 调用邮件服务 API，避免在前端暴露 API Key。
+
+## Session 持久化配置
+
+### Cookie 设置（代码已配置）
+
+- `path: "/"`：全站可用
+- `maxAge: 400 天`：符合浏览器规范上限
+- `sameSite: "lax"`：允许同站及顶层导航
+- `secure: true`（生产环境）：仅 HTTPS 传输
+
+### Supabase Dashboard 配置
+
+若希望登录状态超过一周，需在 Supabase Dashboard 调整：
+
+1. **Authentication** → **Settings** → **JWT expiry**
+2. 将 **Refresh Token Rotation** 的 **Reuse interval** 或 **JWT Expiry** 调大（默认 JWT 约 1 小时，Refresh Token 约 1 周）
+
+> 注意：JWT 过期时间不建议低于 5 分钟；Refresh Token 有效期决定「记住登录」的最长时间。
 
 ## 安全考虑
 

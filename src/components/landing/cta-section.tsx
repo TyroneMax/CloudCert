@@ -1,14 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { motion } from "motion/react";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { WaitlistForm } from "./waitlist-form";
 
 export function CtaSection() {
   const t = useTranslations("landing");
-  const locale = useLocale();
 
   return (
     <section className="py-20 lg:py-28">
@@ -27,11 +24,8 @@ export function CtaSection() {
           <div className="relative">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">{t("ctaTitle")}</h2>
             <p className="mx-auto mt-4 max-w-xl text-lg text-blue-100">{t("ctaSubtitle")}</p>
-            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Button size="lg" className="gap-2 bg-white text-blue-700 hover:bg-blue-50" render={<Link href={`/${locale}/auth/register`} />}>
-                {t("ctaButton")}
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+            <div className="mt-8 flex justify-center">
+              <WaitlistForm variant="cta" />
             </div>
             <p className="mt-6 text-sm text-blue-200">{t("ctaNote")}</p>
           </div>

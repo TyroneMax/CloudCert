@@ -7,8 +7,11 @@ import { Menu, X, Cloud, Globe, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "motion/react";
 import { useRouter, usePathname } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 const navLinks = [
+  { labelKey: "certifications" as const, path: "/certifications" },
   { labelKey: "features" as const, href: "#features" },
   { labelKey: "pricing" as const, href: "#pricing" },
   { labelKey: "faq" as const, href: "#faq" },
@@ -24,12 +27,29 @@ const localeOptions = [
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const langMenuRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("nav");
   const tc = useTranslations("common");
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null));
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setMobileMenuOpen(false);
+    router.push(`/${locale}`);
+    router.refresh();
+  };
 
   const switchLocale = (newLocale: string) => {
     const segments = pathname.split("/");
@@ -64,15 +84,25 @@ export function Navbar() {
 
         {/* Desktop nav */}
         <div className="hidden items-center gap-8 lg:flex">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {t(link.labelKey)}
-            </a>
-          ))}
+          {navLinks.map((link) =>
+            "path" in link ? (
+              <Link
+                key={link.path}
+                href={`/${locale}${link.path}`}
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t(link.labelKey)}
+              </Link>
+            ) : (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t(link.labelKey)}
+              </a>
+            )
+          )}
         </div>
 
         {/* Desktop actions */}
@@ -112,12 +142,25 @@ export function Navbar() {
             </AnimatePresence>
           </div>
 
-          <Button variant="ghost" size="sm" render={<Link href={`/${locale}/auth/login`} />}>
-            {tc("login")}
-          </Button>
-          <Button size="sm" render={<Link href={`/${locale}/auth/register`} />}>
-            {tc("register")}
-          </Button>
+          {user ? (
+            <>
+              <Button variant="ghost" size="sm" render={<Link href={`/${locale}/dashboard`} />}>
+                {t("dashboard")}
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                {tc("logout")}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" render={<Link href={`/${locale}/auth/login`} />}>
+                {tc("login")}
+              </Button>
+              <Button size="sm" render={<Link href={`/${locale}/auth/register`} />}>
+                {tc("register")}
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile hamburger */}
@@ -142,16 +185,27 @@ export function Navbar() {
             className="overflow-hidden border-t border-border/40 bg-background lg:hidden"
           >
             <div className="space-y-1 px-4 pb-4 pt-2">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t(link.labelKey)}
-                </a>
-              ))}
+              {navLinks.map((link) =>
+                "path" in link ? (
+                  <Link
+                    key={link.path}
+                    href={`/${locale}${link.path}`}
+                    className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t(link.labelKey)}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t(link.labelKey)}
+                  </a>
+                )
+              )}
 
               {/* Mobile language options */}
               <div className="border-t border-border/40 pt-2">
@@ -172,12 +226,31 @@ export function Navbar() {
               </div>
 
               <div className="mt-2 flex flex-col gap-2 border-t border-border/40 pt-4">
-                <Button variant="outline" className="w-full" render={<Link href={`/${locale}/auth/login`} />}>
-                  {tc("login")}
-                </Button>
-                <Button className="w-full" render={<Link href={`/${locale}/auth/register`} />}>
-                  {tc("register")}
-                </Button>
+                {user ? (
+                  <>
+                    <Link href={`/${locale}/dashboard`} className="block" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full">
+                        {t("dashboard")}
+                      </Button>
+                    </Link>
+                    <Button variant="outline" className="w-full" onClick={handleLogout}>
+                      {tc("logout")}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link href={`/${locale}/auth/login`} className="block" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full">
+                        {tc("login")}
+                      </Button>
+                    </Link>
+                    <Link href={`/${locale}/auth/register`} className="block" onClick={() => setMobileMenuOpen(false)}>
+                      <Button className="w-full">
+                        {tc("register")}
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

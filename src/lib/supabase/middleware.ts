@@ -1,6 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Cookie max 400 days per browser spec (RFC 6265bis)
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 400;
+
 export async function updateSession(request: NextRequest, response: NextResponse) {
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,9 +16,21 @@ export async function updateSession(request: NextRequest, response: NextResponse
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value);
-            response.cookies.set(name, value, options);
+            response.cookies.set(name, {
+              ...options,
+              path: options?.path ?? "/",
+              maxAge: options?.maxAge ?? COOKIE_MAX_AGE,
+              sameSite: options?.sameSite ?? "lax",
+              secure: options?.secure ?? process.env.NODE_ENV === "production",
+            });
           });
         },
+      },
+      cookieOptions: {
+        path: "/",
+        maxAge: COOKIE_MAX_AGE,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
       },
     }
   );

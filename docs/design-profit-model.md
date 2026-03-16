@@ -4,297 +4,119 @@
 
 ## 概述
 
-CloudCert 采用 Freemium 模式，每个认证题库提供 10~20 道免费题目供试用，超出部分需付费解锁。付费方式支持订阅制和单次购买两种路径，通过 Stripe 处理支付。
+CloudCert 采用**捐赠驱动**模式：登录用户免费获得 1 个完整题库，通过捐赠解锁更多。支付渠道支持 Stripe 信用卡。整体风格偏**捐赠感**，使用整数金额与感谢类命名。
 
-## 盈利策略
-
-### 核心模型
+## 核心模型
 
 ```mermaid
 flowchart TD
-    FreeUser["免费用户"] --> FreeTier["每个认证 10~20 道免费题"]
-    FreeTier --> Experience["体验核心功能<br/>答题、解析、错题本"]
-    Experience --> Convert{"转化?"}
+    Login["用户登录"] --> Free["免费获得 1 个完整题库"]
+    Free --> Choose["任选一个认证"]
+    Choose --> Use["完整使用该题库<br/>答题、解析、错题本、进度"]
 
-    Convert -- 订阅 --> SubMonthly["月度订阅<br/>$X/月"]
-    Convert -- 订阅 --> SubYearly["年度订阅<br/>$Y/年（优惠）"]
-    Convert -- 单次 --> SinglePurchase["单个认证购买<br/>$Z/认证"]
+    Use --> Donate{"捐赠?"}
 
-    SubMonthly --> AllAccess["解锁所有认证全部题目"]
-    SubYearly --> AllAccess
-    SinglePurchase --> CertAccess["解锁该认证全部题目"]
+    Donate -- 感谢 $5 --> Thanks["2 个题库"]
+    Donate -- 支持 $10 --> Support["3 个题库"]
+    Donate -- 赞助 $50 --> Sponsor["全部题库"]
+
+    Thanks --> MoreAccess["更多认证可选"]
+    Support --> MoreAccess
+    Sponsor --> AllAccess["所有认证全部题目"]
 ```
 
-### 方案对比
+## 档位与定价（.99 心理定价）
 
-| | Free | 单次购买 | 月度订阅 (Pro) | 年度订阅 (Pro) |
-|---|------|---------|---------------|---------------|
-| 每个认证免费题目 | 10~20 | — | — | — |
-| 单个认证全部题目 | ❌ | ✅（服务存续期内永久） | ✅ | ✅ |
-| 所有认证全部题目 | ❌ | ❌ | ✅ | ✅ |
-| 题目详解 | ✅ | ✅ | ✅ | ✅ |
-| 错题本 | ✅ | ✅ | ✅ | ✅ |
-| 进度追踪 | ✅ | ✅ | ✅ | ✅ |
-| 搜索功能 | ✅ | ✅ | ✅ | ✅ |
-| 服务终止时数据导出 | ❌ | ✅（邮件发送题库数据） | ✅ | ✅ |
+| 档位 | 金额 | 题库数量 | 说明 |
+|------|------|----------|------|
+| **Free** | $0 | 1 | 登录即得，任选一个完整认证题库 |
+| **感谢** | $4.99 | 2 | 解锁 1 个额外题库 |
+| **支持** | $9.99 | 3 | 解锁 2 个额外题库（$5/个） |
+| **赞助** | $49.99 | 全部 | 解锁全部题库，支持项目持续运营 |
 
-### 定价策略（建议初始价格，后续根据市场调整）
+### 定价逻辑
 
-| 方案 | 价格 | 说明 |
-|------|------|------|
-| Free | $0 | 每个认证 10~20 道题，全功能可用 |
-| 单次购买 | $19.99/认证 | 服务存续期内永久访问该认证全部题目 |
-| 月度订阅 | $9.99/月 | 访问所有认证全部题目 |
-| 年度订阅 | $79.99/年 | 约 $6.67/月，节省 33% |
+- **.99 心理定价**：$4.99 / $9.99 / $49.99，降低价格感知
+- **档位命名**：感谢 / 支持 / 赞助，弱化商业感
+- **递增价值**：档位越高，单题库边际成本越低
 
-### 风险控制与服务条款
+## 访问控制逻辑
 
-#### "永久"访问的定义
+```typescript
+function getUnlockedCount(user, donations) {
+  if (!user) return 0;
+  const active = donations.filter(d => d.status === 'active');
+  if (active.some(d => d.plan_type === 'sponsor')) return Infinity; // 全部
+  const maxTier = active.reduce((max, d) => {
+    const order = { thanks: 1, support: 2, sponsor: 3 };
+    return Math.max(max, order[d.plan_type] || 0);
+  }, 0);
+  return maxTier === 2 ? 3 : maxTier === 1 ? 2 : 1; // 1=free, thanks=2, support=3
+}
 
-单次购买的"永久"指**服务存续期间**永久有效，而非无条件永久。服务条款须明确：
-
-- "永久访问"指 CloudCert 平台正常运营期间，用户可无限期访问已购买认证的全部题目
-- 平台保留因不可抗力、经营调整等原因终止服务的权利
-- 不承诺题库内容永不变更（认证考试大纲更新时题库会同步调整）
-
-#### 服务终止保障（Shutdown Guarantee）
-
-如果 CloudCert 决定关闭服务，须对付费用户执行以下流程：
-
-```mermaid
-flowchart TD
-    Decision["决定关闭服务"] --> Notify["提前 90 天邮件通知所有用户"]
-    Notify --> ExportPeriod["提供 60 天数据导出期"]
-    ExportPeriod --> AutoExport["自动将已购买的题库数据<br/>以 PDF/JSON 格式发送到用户注册邮箱"]
-    AutoExport --> ActiveSub{"有活跃订阅?"}
-    ActiveSub -- 是 --> ProRataRefund["按剩余时间比例退款"]
-    ActiveSub -- 否 --> NoRefund["单次购买用户：不退款<br/>（已提供数据导出）"]
-    ProRataRefund --> Shutdown["正式关闭服务"]
-    NoRefund --> Shutdown
+function canAccessCert(user, certId, unlockedCertIds, hasAllAccess) {
+  if (!user) return false;
+  if (hasAllAccess) return true;
+  return unlockedCertIds.includes(certId);
+}
 ```
 
-#### 数据导出内容
-
-发送给付费用户的题库数据包含：
-
-| 内容 | 格式 | 说明 |
-|------|------|------|
-| 题目 + 选项 + 解析 | PDF | 排版友好，可离线阅读和打印 |
-| 题目 + 选项 + 解析 | JSON | 结构化数据，方便导入其他工具 |
-| 用户练习记录 | CSV | 答题历史、正确率统计 |
-| 错题汇总 | PDF | 所有错题及解析整理 |
-
-#### 实现方式
-
-- 数据导出通过 Supabase Edge Function 批量生成
-- PDF 生成使用服务端 PDF 库（如 Puppeteer 或 jsPDF）
-- 通过邮件服务（如 Resend / SendGrid）批量发送
-- 用户也可在服务终止前从 Settings 页面手动触发导出
+- 免费用户：`unlocked_count = 1`，需在首次使用时选择 1 个认证
+- 感谢：`unlocked_count = 2`
+- 支持：`unlocked_count = 3`
+- 赞助：`has_all_access = true`
 
 ## 数据库设计
 
-### 新增 `user_subscriptions` 表
+### `user_subscriptions` / 捐赠记录
 
-| 字段 | 类型 | 约束 | 说明 |
-|------|------|------|------|
-| `id` | uuid | PK | 主键 |
-| `user_id` | uuid | FK → users.id, NOT NULL | 用户 ID |
-| `plan_type` | varchar | NOT NULL | 方案类型：`single_cert`（单次购买）、`monthly`（月订阅）、`yearly`（年订阅） |
-| `certification_id` | uuid | FK → certifications.id, NULLABLE | 单次购买时关联的认证 ID，订阅制为 NULL（代表全部） |
-| `status` | varchar | NOT NULL | 订阅状态：`active`、`cancelled`、`expired`、`past_due` |
-| `stripe_customer_id` | varchar | | Stripe Customer ID |
-| `stripe_subscription_id` | varchar | | Stripe Subscription ID（订阅制）|
-| `stripe_payment_intent_id` | varchar | | Stripe Payment Intent ID（单次购买）|
-| `current_period_start` | timestamp | | 当前计费周期开始时间 |
-| `current_period_end` | timestamp | | 当前计费周期结束时间（单次购买为 NULL）|
-| `created_at` | timestamp | NOT NULL, DEFAULT NOW() | 创建时间 |
-| `updated_at` | timestamp | NOT NULL, DEFAULT NOW() | 更新时间 |
+沿用现有表，`plan_type` 语义调整为：
 
-> 索引建议：`(user_id, status)` 用于快速查询用户有效订阅。
+| plan_type | 金额 | 题库数 |
+|-----------|------|--------|
+| `thanks` | $4.99 | 2 |
+| `support` | $9.99 | 3 |
+| `sponsor` | $49.99 | 全部 |
 
-### RLS Policy
+### `user_preferences` 扩展
 
-```sql
-ALTER TABLE user_subscriptions ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view own subscriptions"
-  ON user_subscriptions FOR SELECT
-  USING (auth.uid() = user_id);
-```
-
-## 付费流程
-
-### 订阅流程
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant W as Web App
-    participant A as API Route
-    participant S as Stripe
-    participant E as Edge Function
-    participant DB as Supabase DB
-
-    U->>W: 点击 "Subscribe"
-    W->>A: POST /api/checkout
-    A->>S: 创建 Checkout Session
-    S-->>A: Session URL
-    A-->>W: 重定向 URL
-    W->>S: 跳转 Stripe Checkout
-    U->>S: 完成支付
-    S->>E: Webhook: checkout.session.completed
-    E->>DB: INSERT user_subscriptions
-    S-->>W: 重定向 success_url
-    W->>DB: 查询订阅状态
-    W-->>U: 显示成功页面
-```
-
-### 单次购买流程
-
-与订阅流程类似，但 Stripe 使用 `payment_intent` 而非 `subscription`：
-
-1. 用户在认证详情页点击 "Buy This Certification"
-2. 创建 Stripe Checkout Session（mode: `payment`）
-3. 支付完成后 Webhook 写入 `user_subscriptions`（`plan_type = 'single_cert'`）
+新增 `free_certification_id`（uuid, nullable）：用户选择的免费认证 ID。未设置时需引导选择。
 
 ## 付费墙设计
 
-### 练习页面付费提示
-
-当免费用户试图访问超出免费范围的题目时：
+当用户尝试访问超出权限的题库时：
 
 ```
 ┌─────────────────────────────────────────┐
-│              🔒 Premium Content          │
+│              🔒 更多题库                 │
 │                                         │
-│  You've completed all free questions    │
-│  for AWS SAA.                           │
-│                                         │
-│  Unlock all 350 questions to continue   │
-│  your preparation.                      │
+│  您当前可访问 1 个题库。                │
+│  通过捐赠解锁更多，支持我们持续运营。    │
 │                                         │
 │  ┌─────────────────────────────────┐    │
-│  │ Buy AWS SAA          $19.99    │    │
-│  │ Lifetime access to all questions│    │
+│  │ 感谢 $4.99 — 解锁 1 个额外题库  │    │
 │  └─────────────────────────────────┘    │
-│                                         │
-│  ─── OR ───                             │
-│                                         │
 │  ┌─────────────────────────────────┐    │
-│  │ Subscribe to Pro     $9.99/mo  │    │
-│  │ Access ALL certifications       │    │
+│  │ 支持 $9.99 — 解锁 2 个额外题库   │    │
+│  └─────────────────────────────────┘    │
+│  ┌─────────────────────────────────┐    │
+│  │ 赞助 $49.99 — 解锁全部题库      │    │
 │  └─────────────────────────────────┘    │
 │                                         │
-│  Save 33% with yearly plan ($79.99/yr)  │
-│                                         │
+│  [ 捐赠支持 ]                            │
 └─────────────────────────────────────────┘
 ```
 
-### 访问控制逻辑
+## 服务终止保障
 
-```typescript
-function canAccessQuestion(user, question, subscriptions) {
-  if (question.is_free) return true;
-  if (!user) return false;
+若 CloudCert 关闭服务：
 
-  return subscriptions.some(sub =>
-    sub.status === 'active' && (
-      sub.plan_type === 'monthly' ||
-      sub.plan_type === 'yearly' ||
-      (sub.plan_type === 'single_cert' &&
-       sub.certification_id === question.certification_id)
-    )
-  );
-}
-```
-
-## Stripe 集成
-
-### Webhook 事件处理
-
-通过 Supabase Edge Function 接收 Stripe Webhook：
-
-| 事件 | 处理 |
-|------|------|
-| `checkout.session.completed` | 创建 `user_subscriptions` 记录 |
-| `invoice.payment_succeeded` | 更新 `current_period_end` |
-| `invoice.payment_failed` | 更新 `status` 为 `past_due` |
-| `customer.subscription.updated` | 同步订阅状态变更 |
-| `customer.subscription.deleted` | 更新 `status` 为 `cancelled` |
-
-### Stripe 产品配置
-
-| Stripe Product | Price | Mode |
-|---------------|-------|------|
-| CloudCert Pro Monthly | $9.99/月 | Subscription (recurring) |
-| CloudCert Pro Yearly | $79.99/年 | Subscription (recurring) |
-| AWS SAA Question Bank | $19.99 | One-time payment |
-| AWS SAP Question Bank | $19.99 | One-time payment |
-| ... | ... | ... |
-
-### Webhook 幂等性设计
-
-Stripe 在投递失败时会**重试最多 30 次**，Edge Function 必须实现幂等性保护，防止重复操作。
-
-#### 方案：`stripe_events` 事件记录表
-
-```sql
-CREATE TABLE stripe_events (
-  event_id varchar PRIMARY KEY,
-  event_type varchar NOT NULL,
-  processed_at timestamp NOT NULL DEFAULT NOW()
-);
-```
-
-Edge Function 处理流程：
-
-```typescript
-async function handleWebhook(event: Stripe.Event) {
-  // 1. 幂等检查
-  const { data: existing } = await supabase
-    .from('stripe_events')
-    .select('event_id')
-    .eq('event_id', event.id)
-    .single();
-
-  if (existing) return new Response('Already processed', { status: 200 });
-
-  // 2. 处理业务逻辑
-  switch (event.type) {
-    case 'checkout.session.completed':
-      await handleCheckoutCompleted(event);
-      break;
-    // ...
-  }
-
-  // 3. 记录已处理事件
-  await supabase.from('stripe_events').insert({
-    event_id: event.id,
-    event_type: event.type,
-  });
-}
-```
-
-同时为 `user_subscriptions` 添加唯一约束防止重复记录：
-
-```sql
-ALTER TABLE user_subscriptions
-ADD CONSTRAINT unique_stripe_subscription
-UNIQUE NULLS NOT DISTINCT (stripe_subscription_id);
-```
-
-## 未来扩展
-
-| 功能 | 说明 | 阶段 |
-|------|------|------|
-| 优惠码 / 折扣 | 使用 Stripe 原生 Coupon / Promotion Code 能力，支持营销活动 | 第二阶段 |
-| 多币种 | 通过 Stripe 自动货币转换或展示本地化价格（CNY、JPY 等） | 第二阶段 |
-| 免费试用 | Pro 订阅提供 7 天免费试用（Stripe Trial Period） | 第二阶段 |
+1. 提前 90 天邮件通知
+2. 提供 60 天数据导出期
+3. 赞助档用户可按剩余价值比例退款（可选）
 
 ## 技术实现要点
 
-- Stripe Checkout 使用 hosted 模式（跳转到 Stripe 页面），降低 PCI 合规成本
-- Webhook 签名验证确保请求来自 Stripe
-- 订阅状态通过 Webhook 实时同步，不依赖客户端上报
-- 付费墙在前端（隐藏内容）和后端（RLS Policy）双重校验
-- 用户可在 `/settings` 页面管理订阅（通过 Stripe Customer Portal）
+- 捐赠为一次性支付，无订阅续费
+- 访问控制基于 `plan_type` 计算 `unlocked_count` 或 `has_all_access`
+- 免费用户首次进入时引导选择 1 个认证，写入 `user_preferences.free_certification_id`

@@ -1,14 +1,13 @@
 "use client";
 
-import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
-import { ArrowRight, Shield, BookOpen, Award } from "lucide-react";
+import { Shield, BookOpen, Award } from "lucide-react";
+import { WaitlistForm } from "./waitlist-form";
 
 export function HeroSection() {
   const t = useTranslations("landing");
-  const locale = useLocale();
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/50 to-background py-20 lg:py-32">
@@ -41,17 +40,17 @@ export function HeroSection() {
               {t("heroSubtitle")}
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
-              <Button size="lg" className="gap-2 text-base" render={<Link href={`/${locale}/auth/register`} />}>
-                {t("ctaStart")}
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+            <div className="mt-8 flex justify-center lg:justify-start">
+              <WaitlistForm variant="hero" />
+            </div>
+
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <Button size="lg" variant="outline" className="text-base" render={<a href="#certifications" />}>
                 {t("ctaView")}
               </Button>
             </div>
 
-            <div className="mt-8 flex items-center justify-center gap-6 text-sm text-muted-foreground lg:justify-start">
+            <div className="mt-6 flex items-center justify-center gap-6 text-sm text-muted-foreground lg:justify-start">
               <span className="flex items-center gap-1.5">
                 <Shield className="h-4 w-4 text-green-600" />
                 {t("noCreditCard")}
