@@ -1,0 +1,28 @@
+---
+description: UX design and frontend code style must follow design-ux-standards.md
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# UX Design & Frontend Standards
+
+All UX design and frontend code MUST follow [docs/design-ux-standards.md](../docs/design-ux-standards.md).
+
+## Before Writing Frontend Code
+
+1. Read `docs/design-ux-standards.md` for the full spec
+2. Use Design Tokens (colors, spacing, typography, shadows) — no hardcoded values
+3. Follow component specs (Button, Input, Card, Modal, Toast, Skeleton)
+4. Implement loading, error, and empty states per the doc
+5. Ensure a11y: keyboard nav, aria-labels, color contrast ≥ 4.5:1
+6. Use `@media (hover: hover)` for PC-only hover effects
+7. Respect `prefers-reduced-motion` for animations
+
+## Quick Checklist
+
+- [ ] Colors from tokens (`primary`, `success`, `error`, etc.)
+- [ ] Spacing: `spacing-4` / `gap-6` / `py-20` per breakpoints
+- [ ] Buttons: verb-first copy, loading spinner, disabled state
+- [ ] Images: `alt` attribute; icon buttons: `aria-label`
+- [ ] Responsive: Mobile (<640px), Tablet (768–1023px), Desktop (≥1024px)
+- [ ] Modal on mobile → bottom Sheet; min touch target 44×44px

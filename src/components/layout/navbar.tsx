@@ -15,6 +15,7 @@ const navLinks = [
   { labelKey: "certifications" as const, path: "/certifications" },
   { labelKey: "features" as const, href: "#features" },
   { labelKey: "pricing" as const, href: "#pricing" },
+  { labelKey: "roadmap" as const, href: "#roadmap" },
   { labelKey: "faq" as const, href: "#faq" },
 ];
 
@@ -95,13 +96,13 @@ export function Navbar() {
                 {t(link.labelKey)}
               </Link>
             ) : (
-              <a
+              <Link
                 key={link.href}
-                href={link.href}
+                href={`/${locale}${link.href}`}
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 {t(link.labelKey)}
-              </a>
+              </Link>
             )
           )}
         </div>
@@ -197,14 +198,14 @@ export function Navbar() {
                     {t(link.labelKey)}
                   </Link>
                 ) : (
-                  <a
+                  <Link
                     key={link.href}
-                    href={link.href}
+                    href={`/${locale}${link.href}`}
                     className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {t(link.labelKey)}
-                  </a>
+                  </Link>
                 )
               )}
 

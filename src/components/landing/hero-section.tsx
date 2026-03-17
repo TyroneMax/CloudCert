@@ -1,13 +1,14 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { Shield, BookOpen, Award } from "lucide-react";
-import { WaitlistForm } from "./waitlist-form";
 
 export function HeroSection() {
   const t = useTranslations("landing");
+  const locale = useLocale();
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/50 to-background py-20 lg:py-32">
@@ -36,16 +37,12 @@ export function HeroSection() {
               </span>
             </h1>
 
-            <p className="mt-6 max-w-xl text-lg text-muted-foreground lg:text-xl">
+            <p className="mx-auto mt-6 max-w-xl text-center text-lg text-muted-foreground lg:mx-0 lg:text-left lg:text-xl">
               {t("heroSubtitle")}
             </p>
 
             <div className="mt-8 flex justify-center lg:justify-start">
-              <WaitlistForm variant="hero" />
-            </div>
-
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
-              <Button size="lg" variant="outline" className="text-base" render={<a href="#certifications" />}>
+              <Button size="lg" className="text-base" render={<Link href={`/${locale}/certifications`} />}>
                 {t("ctaView")}
               </Button>
             </div>

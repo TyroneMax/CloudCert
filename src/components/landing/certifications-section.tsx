@@ -3,41 +3,48 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { motion } from "motion/react";
+import { Check, Clock, ArrowRight } from "lucide-react";
+import { CloudProviderLogos } from "@/components/icons/cloud-provider-logos";
 
 const certifications = [
   {
-    provider: "AWS",
+    provider: "AWS" as const,
     name: "Amazon Web Services",
-    icon: "🟧",
     certs: ["Solutions Architect Associate", "Developer Associate", "SysOps Administrator"],
     available: true,
-    color: "border-orange-200 bg-orange-50",
+    iconBg: "bg-orange-50",
   },
   {
-    provider: "Azure",
+    provider: "Azure" as const,
     name: "Microsoft Azure",
-    icon: "🔵",
     certs: ["AZ-900 Fundamentals", "AZ-104 Administrator", "AZ-204 Developer"],
     available: false,
-    color: "border-blue-200 bg-blue-50",
+    iconBg: "bg-sky-50",
   },
   {
-    provider: "GCP",
+    provider: "GCP" as const,
     name: "Google Cloud Platform",
-    icon: "🔴",
     certs: ["Cloud Digital Leader", "Associate Cloud Engineer", "Professional Cloud Architect"],
     available: false,
-    color: "border-red-200 bg-red-50",
+    iconBg: "bg-blue-50",
   },
 ];
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
 };
+
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring" as const, stiffness: 200, damping: 20 },
+  },
 };
 
 export function CertificationsSection() {
@@ -45,13 +52,13 @@ export function CertificationsSection() {
   const locale = useLocale();
 
   return (
-    <section id="certifications" className="py-20 lg:py-28">
+    <section id="certifications" className="scroll-mt-20 py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.4 }}
+          transition={{ type: "spring", stiffness: 200, damping: 20 }}
           className="text-center"
         >
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("certTitle")}</h2>
@@ -65,36 +72,66 @@ export function CertificationsSection() {
           viewport={{ once: true, margin: "-100px" }}
           className="mt-16 grid gap-8 md:grid-cols-3"
         >
-          {certifications.map((cert) => (
-            <motion.div key={cert.provider} variants={itemVariants}>
-              <div className={`group relative rounded-xl border p-6 transition-shadow hover:shadow-md ${cert.color}`}>
+          {certifications.map((cert) => {
+            const CardContent = (
+              <>
                 {cert.available ? (
-                  <div className="absolute right-4 top-4 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">{t("available")}</div>
+                  <div className="absolute right-4 top-4 flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
+                    <Check className="h-3.5 w-3.5" aria-hidden />
+                    {t("available")}
+                  </div>
                 ) : (
-                  <div className="absolute right-4 top-4 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">{t("comingSoon")}</div>
+                  <div className="absolute right-4 top-4 flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5" aria-hidden />
+                    {t("comingSoon")}
+                  </div>
                 )}
-                <div className="mb-4 text-4xl">{cert.icon}</div>
+                <div className={`mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl ${cert.iconBg} p-2`}>
+                  {(() => {
+                    const Logo = CloudProviderLogos[cert.provider];
+                    return <Logo size={40} />;
+                  })()}
+                </div>
                 <h3 className="text-xl font-semibold">{cert.provider}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{cert.name}</p>
                 <ul className="mt-4 space-y-2">
                   {cert.certs.map((name) => (
                     <li key={name} className="flex items-center gap-2 text-sm text-foreground/80">
-                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-40" />
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-40" aria-hidden />
                       {name}
                     </li>
                   ))}
                 </ul>
                 {cert.available && (
+                  <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors group-hover:text-primary/90">
+                    {t("browseCerts")}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                  </span>
+                )}
+              </>
+            );
+
+            return (
+              <motion.div key={cert.provider} variants={itemVariants}>
+                {cert.available ? (
                   <Link
                     href={`/${locale}/certifications`}
-                    className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800"
+                    className="group relative flex flex-col rounded-xl border border-border/60 bg-card p-6 transition-all hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    aria-label={`${cert.provider} - ${t("browseCerts")}`}
                   >
-                    {t("browseCerts")}
+                    {CardContent}
                   </Link>
+                ) : (
+                  <div
+                    className="group relative flex flex-col rounded-xl border border-border/60 bg-card p-6 transition-shadow"
+                    aria-label={`${cert.provider} - ${t("comingSoon")}`}
+                  >
+                    {CardContent}
+                  </div>
                 )}
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </motion.div>
       </div>
     </section>

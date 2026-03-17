@@ -103,10 +103,15 @@ export function PricingSection() {
                   <Check className="h-4 w-4 shrink-0 text-green-600" />
                   {tier.feature}
                 </div>
-                <div className="mt-6 flex-1">
+                <div className="mt-auto pt-6">
                   {tier.planType ? (
-                    <Button size="lg" className="w-full" variant={tier.highlighted ? "default" : "outline"} disabled>
-                      {t("donateComingSoon")}
+                    <Button
+                      size="lg"
+                      className="w-full"
+                      variant={tier.highlighted ? "default" : "outline"}
+                      render={<Link href={`/${locale}/donate?plan=${tier.planType}`} />}
+                    >
+                      {tier.cta}
                     </Button>
                   ) : (
                     <Button size="lg" className="w-full" variant="outline" render={<Link href={`/${locale}/auth/register`} />}>

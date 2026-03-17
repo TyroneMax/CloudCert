@@ -647,6 +647,7 @@ CREATE POLICY "Anyone can view" ON option_translations FOR SELECT USING (true);
 | `/wrong-answers` | 错题本 | 是 | [design-wrong-answers.md](docs/design-wrong-answers.md) |
 | `/search` | 搜索页面 | 否 | [design-search.md](docs/design-search.md) |
 | `/roadmap` | 产品路线图 | 否 | [design-roadmap.md](docs/design-roadmap.md) |
+| `/donate` | 捐赠确认与支付 | 是 | [design-donate.md](docs/design-donate.md) |
 | `/settings` | 用户设置 | 是 | [design-auth.md](docs/design-auth.md) |
 
 ### 管理后台（Admin App - 独立部署）
@@ -677,7 +678,8 @@ CREATE POLICY "Anyone can view" ON option_translations FOR SELECT USING (true);
 | [design-search.md](docs/design-search.md) | 搜索功能 | 题目搜索、认证搜索 |
 | [design-i18n.md](docs/design-i18n.md) | 多语言策略 | UI 国际化、内容多语言 |
 | [design-dashboard.md](docs/design-dashboard.md) | 用户仪表盘 | 练习进度、正确率统计 |
-| [design-profit-model.md](docs/design-profit-model.md) | 盈利模式 | Freemium、订阅、单次购买 |
+| [design-profit-model.md](docs/design-profit-model.md) | 盈利模式 | Freemium、捐赠、单次购买 |
+| [design-donate.md](docs/design-donate.md) | 捐赠流程 | 档位选择、Stripe Checkout、成功页 |
 | [design-admin.md](docs/design-admin.md) | 管理后台系统 | 题库/认证/用户/翻译/统计/订单/内容管理 |
 | [design-ux-standards.md](docs/design-ux-standards.md) | UX 设计标准 | Design Tokens、组件规范、交互模式、a11y 无障碍、响应式规范 |
 | [design-seo.md](docs/design-seo.md) | SEO 策略 | Meta 标签、结构化数据、Sitemap、Core Web Vitals、多语言 SEO |
