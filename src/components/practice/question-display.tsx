@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { MarkdownContent } from "@/components/ui/markdown-content";
 import type { Question, QuestionOption } from "@/lib/data/questions";
 
 type QuestionDisplayProps = {
@@ -105,7 +106,10 @@ export function QuestionDisplay({
       {isSubmitted && explanation && (
         <div className="rounded-lg border border-border bg-muted/30 p-4">
           <p className="text-sm font-semibold">{t("explanation")}</p>
-          <p className="mt-2 text-sm text-muted-foreground">{explanation}</p>
+          <MarkdownContent
+            content={explanation}
+            className="mt-2 text-sm text-muted-foreground prose prose-sm prose-neutral dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-2 prose-li:my-0"
+          />
         </div>
       )}
     </div>

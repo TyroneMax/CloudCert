@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
 const navLinks = [
+  { labelKey: "search" as const, path: "/search" },
   { labelKey: "certifications" as const, path: "/certifications" },
   { labelKey: "features" as const, href: "#features" },
   { labelKey: "pricing" as const, href: "#pricing" },

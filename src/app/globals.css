@@ -163,6 +163,17 @@
   }
 }
 
+/* Code blocks in Markdown (explanation, etc.) */
+.prose pre {
+  @apply rounded-lg bg-muted p-4 overflow-x-auto text-sm;
+}
+.prose pre code {
+  @apply bg-transparent p-0;
+}
+.prose :not(pre) > code {
+  @apply rounded bg-muted px-1.5 py-0.5 text-sm;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

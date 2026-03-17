@@ -10,6 +10,7 @@
     "back": "戻る"
   },
   "nav": {
+    "search": "検索",
     "certifications": "認定一覧",
     "features": "機能",
     "pricing": "料金プラン",
@@ -175,6 +176,76 @@
       "questionAria": "問題 {n}（{status}）",
       "lockedAria": "問題 {n}（ロック）"
     }
+  },
+  "roadmap": {
+    "title": "製品ロードマップ",
+    "subtitle": "CloudCertの今後の開発計画をご確認ください",
+    "phase1": "フェーズ1: 基盤構築",
+    "phase2": "フェーズ2: UX強化",
+    "phase3": "フェーズ3: プラットフォーム拡張",
+    "statusInProgress": "進行中",
+    "statusPlanned": "計画済み",
+    "statusFuture": "将来",
+    "feedbackTitle": "機能リクエストはありますか？",
+    "feedbackButton": "フィードバックを送信"
+  },
+  "search": {
+    "title": "検索",
+    "placeholder": "問題と認定を検索...",
+    "all": "すべて",
+    "questions": "問題",
+    "certifications": "認定",
+    "certResults": "認定",
+    "questionResults": "問題",
+    "resultsFor": "「{query}」の検索結果",
+    "noResults": "結果が見つかりません",
+    "tryDifferent": "別のキーワードやフィルターをお試しください",
+    "questionsCount": "{count}問"
+  },
+  "wrongAnswers": {
+    "title": "不正解ノート",
+    "back": "不正解に戻る",
+    "total": "合計 {count} 問の不正解",
+    "empty": "不正解はまだありません。この調子で！",
+    "redoAll": "すべての不正解をやり直す",
+    "viewDetail": "詳細を見る",
+    "redo": "やり直す",
+    "yourAnswer": "あなたの回答",
+    "correct": "正解",
+    "attempted": "{count}回回答",
+    "attemptedOnce": "1回回答",
+    "lastAttempt": "最終: {date}"
+  },
+  "settings": {
+    "title": "設定",
+    "profile": "プロフィール",
+    "displayName": "表示名",
+    "email": "メール",
+    "language": "言語",
+    "uiLanguage": "UI言語",
+    "questionLanguage": "問題言語",
+    "account": "アカウント",
+    "logout": "ログアウト",
+    "save": "保存",
+    "saved": "保存しました",
+    "saving": "保存中..."
+  },
+  "dashboard": {
+    "welcome": "おかえりなさい、{name}さん！",
+    "totalAnswered": "総回答数",
+    "correctRate": "正答率",
+    "wrongAnswers": "不正解数",
+    "myCertifications": "マイ認定",
+    "continuePractice": "練習を続ける",
+    "viewWrongAnswers": "不正解を確認",
+    "startPractice": "練習を開始",
+    "notStarted": "まだ開始していません",
+    "categoryBreakdown": "カテゴリ別正答率",
+    "recentActivity": "最近の活動",
+    "answeredN": "{count}問回答",
+    "quickActions": "クイックアクション",
+    "browseCerts": "認定を閲覧",
+    "reviewWrong": "不正解を復習"
   },
   "auth": {
     "loginTitle": "おかえりなさい",

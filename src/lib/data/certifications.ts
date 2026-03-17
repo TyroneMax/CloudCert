@@ -1,7 +1,9 @@
 /**
  * Certifications data layer.
- * Uses mock data when Supabase tables are not yet available.
+ * Fetches from Supabase with optional translation and progress.
  */
+
+import { createClient } from "@/lib/supabase/server";
 
 export type Certification = {
   id: string;
@@ -20,73 +22,87 @@ export type CertificationWithProgress = Certification & {
   answered_count: number;
 };
 
-const MOCK_CERTIFICATIONS: Certification[] = [
-  {
-    id: "1",
-    code: "aws-saa",
-    name: "AWS Solutions Architect Associate",
-    provider: "AWS",
-    description: "Design and deploy scalable, highly available systems on AWS.",
-    icon_url: null,
-    total_questions: 350,
-    free_question_limit: 15,
-    is_active: true,
-  },
-  {
-    id: "2",
-    code: "aws-dva",
-    name: "AWS Developer Associate",
-    provider: "AWS",
-    description: "Develop and maintain applications on the AWS platform.",
-    icon_url: null,
-    total_questions: 280,
-    free_question_limit: 12,
-    is_active: true,
-  },
-  {
-    id: "3",
-    code: "az-900",
-    name: "Azure Fundamentals",
-    provider: "Azure",
-    description: "Microsoft Azure cloud concepts and services.",
-    icon_url: null,
-    total_questions: 200,
-    free_question_limit: 10,
-    is_active: false,
-  },
-  {
-    id: "4",
-    code: "gcp-ace",
-    name: "Associate Cloud Engineer",
-    provider: "GCP",
-    description: "Deploy and maintain applications on Google Cloud.",
-    icon_url: null,
-    total_questions: 250,
-    free_question_limit: 10,
-    is_active: false,
-  },
-];
-
 export async function getCertifications(options?: {
   locale?: string;
   provider?: "AWS" | "Azure" | "GCP" | "all";
   userId?: string | null;
 }): Promise<CertificationWithProgress[]> {
-  const { provider = "all" } = options ?? {};
-  let certs = MOCK_CERTIFICATIONS.filter((c) => c.is_active);
+  const supabase = await createClient();
+  const { provider = "all", locale = "en", userId } = options ?? {};
 
-  if (provider !== "all") {
-    certs = certs.filter((c) => c.provider === provider);
+  const { data: certs, error } = await supabase
+    .from("certifications")
+    .select("id, code, name, provider, description, icon_url, total_questions, free_question_limit, is_active")
+    .eq("is_active", true)
+    .order("total_questions", { ascending: false });
+
+  if (error || !certs) {
+    return [];
   }
 
-  // TODO: Replace with Supabase query when tables exist
-  // const { data } = await supabase.from('certifications').select('*').eq('is_active', true);
-  // Join certification_translations for locale
-  // Join user_attempts for progress when userId present
+  let filtered = certs;
+  if (provider !== "all") {
+    filtered = certs.filter((c) => c.provider === provider);
+  }
 
-  return certs.map((c) => ({
-    ...c,
-    answered_count: 0, // Mock: no progress. Real: aggregate from user_attempts
+  // Fetch translations for locale if not en
+  const lang = locale === "en" ? null : locale;
+  let translations: Record<string, string> = {};
+  if (lang && filtered.length > 0) {
+    const { data: trans } = await supabase
+      .from("certification_translations")
+      .select("certification_id, name")
+      .eq("language", lang)
+      .in("certification_id", filtered.map((c) => c.id));
+    if (trans) {
+      trans.forEach((t) => {
+        translations[t.certification_id] = t.name;
+      });
+    }
+  }
+
+  // Fetch answered count per cert when userId present
+  let progressMap: Record<string, number> = {};
+  if (userId && filtered.length > 0) {
+    const certIds = filtered.map((c) => c.id);
+    const { data: questions } = await supabase
+      .from("questions")
+      .select("id, certification_id")
+      .in("certification_id", certIds);
+    if (questions && questions.length > 0) {
+      const qIds = questions.map((q) => q.id);
+      const { data: attempts } = await supabase
+        .from("user_attempts")
+        .select("question_id")
+        .eq("user_id", userId)
+        .in("question_id", qIds);
+      if (attempts) {
+        const distinctByCert: Record<string, Set<string>> = {};
+        attempts.forEach((a) => {
+          const q = questions.find((q) => q.id === a.question_id);
+          if (q) {
+            if (!distinctByCert[q.certification_id]) distinctByCert[q.certification_id] = new Set();
+            distinctByCert[q.certification_id].add(a.question_id);
+          }
+        });
+        Object.entries(distinctByCert).forEach(([certId, set]) => {
+          progressMap[certId] = set.size;
+        });
+      }
+    }
+  }
+
+  return filtered.map((c) => ({
+    id: c.id,
+    code: c.code,
+    name: lang && translations[c.id] ? translations[c.id] : c.name,
+    provider: c.provider as "AWS" | "Azure" | "GCP",
+    description: c.description,
+    icon_url: c.icon_url,
+    total_questions: c.total_questions,
+    free_question_limit: c.free_question_limit,
+    is_active: c.is_active,
+    answered_count: progressMap[c.id] ?? 0,
   }));
 }
 
@@ -94,7 +110,37 @@ export async function getCertificationByCode(
   code: string,
   options?: { locale?: string }
 ): Promise<Certification | null> {
-  const cert = MOCK_CERTIFICATIONS.find((c) => c.code === code);
-  if (!cert) return null;
-  return cert;
+  const supabase = await createClient();
+  const { locale = "en" } = options ?? {};
+
+  const { data: cert, error } = await supabase
+    .from("certifications")
+    .select("id, code, name, provider, description, icon_url, total_questions, free_question_limit, is_active")
+    .eq("code", code)
+    .single();
+
+  if (error || !cert) return null;
+
+  let name = cert.name;
+  if (locale !== "en") {
+    const { data: trans } = await supabase
+      .from("certification_translations")
+      .select("name")
+      .eq("certification_id", cert.id)
+      .eq("language", locale)
+      .single();
+    if (trans) name = trans.name;
+  }
+
+  return {
+    id: cert.id,
+    code: cert.code,
+    name,
+    provider: cert.provider as "AWS" | "Azure" | "GCP",
+    description: cert.description,
+    icon_url: cert.icon_url,
+    total_questions: cert.total_questions,
+    free_question_limit: cert.free_question_limit,
+    is_active: cert.is_active,
+  };
 }

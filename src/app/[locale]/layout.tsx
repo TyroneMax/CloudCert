@@ -51,6 +51,7 @@ const localeFontMap: Record<string, typeof plusJakartaSans> = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://cloudcert.com"),
   title: {
     default: "CloudCert - Pass Your Cloud Certification with Confidence",
     template: "%s | CloudCert",
@@ -65,6 +66,18 @@ export const metadata: Metadata = {
     "practice exam",
     "certification preparation",
   ],
+  openGraph: {
+    type: "website",
+    siteName: "CloudCert",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default async function LocaleLayout({

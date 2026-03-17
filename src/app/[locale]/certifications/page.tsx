@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { createClient } from "@/lib/supabase/server";
 import { getCertifications } from "@/lib/data/certifications";
 import { CertificationsClient } from "./certifications-client";
 
@@ -19,9 +20,13 @@ export default async function CertificationsPage({
   const { locale } = await params;
   const { provider } = await searchParams;
 
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const certs = await getCertifications({
     locale,
     provider: provider as "AWS" | "Azure" | "GCP" | undefined,
+    userId: user?.id ?? null,
   });
 
   return (

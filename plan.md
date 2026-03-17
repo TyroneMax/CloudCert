@@ -46,25 +46,32 @@
 - 4 语言翻译 (成功、重复、错误提示)
 - 设计文档: `docs/design-landing-page.md`
 
+### 8. 数据库完整 Schema ✅
+- 核心表: `certifications`, `categories`, `questions`, `options`
+- 翻译表: `certification_translations`, `category_translations`, `question_translations`, `option_translations`
+- 业务表: `user_attempts`（`user_subscriptions` 已存在）
+- 管理表: `admin_users`, `audit_logs`, `site_content`, `stripe_events`
+- RLS 策略 + 索引 + 触发器
+- 种子数据: AWS SAA 认证 + 3 分类 + 3 道示例题目
+
+### 9. Dashboard 仪表盘页面 ✅
+- 统计概览卡片 (总答题数、正确率、错题数)
+- 认证卡片列表 (继续练习 / 开始练习)
+- 分类正确率柱状图
+- 最近活动
+- 快捷操作
+
+### 10. Practice 练习页面 ✅
+- 数据层接入 Supabase (certifications, practice, questions)
+- 认证列表从数据库获取
+- 练习入口页 + 答题界面
+- 提交答案 API 接入 Supabase (user_attempts)
+
 ---
 
 ## 待实施
 
-### 9. 数据库完整 Schema 🔲
-- 创建核心表: `certifications`, `categories`, `questions`, `options`
-- 创建翻译表: `certification_translations`, `category_translations`, `question_translations`, `option_translations`
-- 创建业务表: `user_attempts`（`user_subscriptions` 已创建）
-- 创建管理表: `admin_users`, `audit_logs`, `site_content`, `stripe_events`
-- RLS 策略 + 索引
-- 种子数据: AWS SAA 认证 + 分类 + 示例题目
-
-### 10. Dashboard 仪表盘页面 🔲
-- 学习进度总览 (完成率、正确率)
-- 认证卡片列表 (继续学习 / 开始新认证)
-- 最近学习记录
-- 设计文档: `docs/design-dashboard.md`
-
-### 11. Practice 练习页面 🔲
+### 11. Practice 练习页面（增强） ✅
 - 答题界面 (单选 / 多选)
 - 题目导航 (上一题 / 下一题 / 跳转)
 - 答题状态管理 (未答 / 已答 / 标记)
@@ -72,36 +79,36 @@
 - 进度条显示
 - 设计文档: `docs/design-practice.md`
 
-### 12. Explanation 解析功能 🔲
+### 13. Explanation 解析功能 ✅
 - 提交答案后显示详细解析
 - 正确/错误选项分析
 - 解析内容多语言支持
 - 设计文档: `docs/design-explanation.md`
 
-### 13. Wrong Answers 错题本 🔲
+### 14. Wrong Answers 错题本 ✅
 - 自动收集错题记录
 - 按认证 / 分类筛选
 - 重做单题 / 批量重做
 - 设计文档: `docs/design-wrong-answers.md`
 
-### 14. Search 搜索功能 🔲
+### 15. Search 搜索功能 ✅（含关键词高亮）
 - 题目关键词搜索
 - 认证浏览 / 筛选
 - 搜索结果高亮
 - 设计文档: `docs/design-search.md`
 
-### 15. Settings 设置页面 🔲
+### 16. Settings 设置页面 ✅
 - 个人资料编辑 (Display Name, Avatar)
 - 语言偏好 (UI Language, Question Language)
 - 订阅管理入口
 
-### 16. Stripe 支付集成 🔲
+### 17. Stripe 支付集成 ⏭️ 跳过
 - Checkout 流程 (Monthly / Yearly / Single Cert)
 - Webhook 处理 (订阅状态同步)
 - 免费题目限制逻辑
 - 设计文档: `docs/design-profit-model.md`
 
-### 17. SEO + 性能优化 🔲
+### 18. SEO + 性能优化 ✅
 - Meta tags / Open Graph / Structured Data
 - 静态页面预渲染
 - 设计文档: `docs/design-seo.md`
@@ -112,9 +119,6 @@
 
 | 优先级 | 任务 | 理由 |
 |--------|------|------|
-| 🔴 P0 | 数据库完整 Schema (#9) | 所有功能页面依赖数据库表 |
-| 🔴 P0 | Dashboard (#10) | 登录后的核心入口 |
-| 🔴 P0 | Practice 练习页 (#11) | 产品核心功能 |
 | 🟠 P1 | Explanation 解析 (#12) | 与 Practice 紧密关联 |
 | 🟠 P1 | Wrong Answers 错题本 (#13) | 与 Practice 紧密关联 |
 | 🟡 P2 | Search 搜索 (#14) | 辅助功能 |

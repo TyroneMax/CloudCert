@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { createClient } from "@/lib/supabase/server";
 import { getPracticeEntryData } from "@/lib/data/practice";
-import { getQuestionsForPractice } from "@/lib/data/questions";
+import { getQuestionsForPractice, getQuestionsByIds } from "@/lib/data/questions";
 import { PracticeEntry } from "@/components/practice/practice-entry";
 import { QuizView } from "@/components/practice/quiz-view";
 
@@ -17,6 +18,7 @@ export async function generateMetadata({
   return {
     title: `${data.certification.name} - Practice`,
     description: `Practice ${data.certification.total_questions} questions for ${data.certification.name}.`,
+    robots: { index: false, follow: false },
   };
 }
 
@@ -25,23 +27,34 @@ export default async function PracticePage({
   searchParams,
 }: {
   params: Promise<{ certId: string; locale: string }>;
-  searchParams: Promise<{ start?: string; mode?: string; category?: string }>;
+  searchParams: Promise<{ start?: string; mode?: string; category?: string; ids?: string }>;
 }) {
-  const { certId } = await params;
-  const { start, mode, category } = await searchParams;
+  const { certId, locale } = await params;
+  const { start, mode, category, ids } = await searchParams;
 
-  const entryData = await getPracticeEntryData(certId);
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const entryData = await getPracticeEntryData(certId, { locale, userId: user?.id ?? null });
   if (!entryData) notFound();
 
   const showQuiz =
     start ||
-    (mode === "category" && category);
+    (mode === "category" && category) ||
+    ids;
 
   if (showQuiz) {
-    const questionsResult = await getQuestionsForPractice(certId, {
-      mode: mode === "category" ? "category" : "all",
-      categoryId: category ?? undefined,
-    });
+    let questionsResult;
+    if (ids) {
+      const questionIds = ids.split(",").filter(Boolean);
+      questionsResult = await getQuestionsByIds(questionIds, { locale });
+    } else {
+      questionsResult = await getQuestionsForPractice(certId, {
+        mode: mode === "category" ? "category" : "all",
+        categoryId: category ?? undefined,
+        locale,
+      });
+    }
 
     if (!questionsResult || questionsResult.questions.length === 0) {
       notFound();

@@ -10,6 +10,7 @@
     "back": "Back"
   },
   "nav": {
+    "search": "Search",
     "certifications": "Certifications",
     "features": "Features",
     "pricing": "Pricing",
@@ -175,6 +176,76 @@
       "questionAria": "Question {n} ({status})",
       "lockedAria": "Question {n} (locked)"
     }
+  },
+  "roadmap": {
+    "title": "Product Roadmap",
+    "subtitle": "See what's coming next for CloudCert",
+    "phase1": "Phase 1: Foundation",
+    "phase2": "Phase 2: UX Enhancement",
+    "phase3": "Phase 3: Platform Expansion",
+    "statusInProgress": "In Progress",
+    "statusPlanned": "Planned",
+    "statusFuture": "Future",
+    "feedbackTitle": "Have a feature request?",
+    "feedbackButton": "Submit Feedback"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search questions and certifications...",
+    "all": "All",
+    "questions": "Questions",
+    "certifications": "Certifications",
+    "certResults": "Certifications",
+    "questionResults": "Questions",
+    "resultsFor": "Results for \"{query}\"",
+    "noResults": "No results found",
+    "tryDifferent": "Try different keywords or filters",
+    "questionsCount": "{count} questions"
+  },
+  "wrongAnswers": {
+    "title": "Wrong Answers",
+    "back": "Back to wrong answers",
+    "total": "Total: {count} wrong answers",
+    "empty": "No wrong answers yet. Keep it up!",
+    "redoAll": "Redo All Wrong Answers",
+    "viewDetail": "View Detail",
+    "redo": "Redo",
+    "yourAnswer": "Your answer",
+    "correct": "Correct",
+    "attempted": "Attempted {count} times",
+    "attemptedOnce": "Attempted 1 time",
+    "lastAttempt": "Last: {date}"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "displayName": "Display Name",
+    "email": "Email",
+    "language": "Language",
+    "uiLanguage": "UI Language",
+    "questionLanguage": "Question Language",
+    "account": "Account",
+    "logout": "Log Out",
+    "save": "Save",
+    "saved": "Saved",
+    "saving": "Saving..."
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {name}!",
+    "totalAnswered": "Total Answered",
+    "correctRate": "Correct Rate",
+    "wrongAnswers": "Wrong Answers",
+    "myCertifications": "My Certifications",
+    "continuePractice": "Continue Practice",
+    "viewWrongAnswers": "View Wrong Answers",
+    "startPractice": "Start Practice",
+    "notStarted": "Not started yet",
+    "categoryBreakdown": "Category Breakdown",
+    "recentActivity": "Recent Activity",
+    "answeredN": "Answered {count} questions",
+    "quickActions": "Quick Actions",
+    "browseCerts": "Browse Certifications",
+    "reviewWrong": "Review Wrong Answers"
   },
   "auth": {
     "loginTitle": "Welcome back",

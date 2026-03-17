@@ -16,13 +16,13 @@ export async function updateSession(request: NextRequest, response: NextResponse
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value);
-            response.cookies.set(name, {
-              ...options,
+            const cookieOptions = {
               path: options?.path ?? "/",
               maxAge: options?.maxAge ?? COOKIE_MAX_AGE,
-              sameSite: options?.sameSite ?? "lax",
+              sameSite: (options?.sameSite ?? "lax") as "lax" | "strict" | "none",
               secure: options?.secure ?? process.env.NODE_ENV === "production",
-            });
+            };
+            response.cookies.set(name, value, cookieOptions);
           });
         },
       },

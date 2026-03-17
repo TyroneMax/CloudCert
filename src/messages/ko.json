@@ -10,6 +10,7 @@
     "back": "뒤로"
   },
   "nav": {
+    "search": "검색",
     "certifications": "자격증 목록",
     "features": "기능",
     "pricing": "요금제",
@@ -175,6 +176,76 @@
       "questionAria": "문제 {n} ({status})",
       "lockedAria": "문제 {n} (잠김)"
     }
+  },
+  "roadmap": {
+    "title": "제품 로드맵",
+    "subtitle": "CloudCert의 향후 개발 계획을 확인하세요",
+    "phase1": "1단계: 기반 구축",
+    "phase2": "2단계: UX 강화",
+    "phase3": "3단계: 플랫폼 확장",
+    "statusInProgress": "진행 중",
+    "statusPlanned": "계획됨",
+    "statusFuture": "향후",
+    "feedbackTitle": "기능 요청이 있으신가요?",
+    "feedbackButton": "피드백 제출"
+  },
+  "search": {
+    "title": "검색",
+    "placeholder": "문제와 자격증 검색...",
+    "all": "전체",
+    "questions": "문제",
+    "certifications": "자격증",
+    "certResults": "자격증",
+    "questionResults": "문제",
+    "resultsFor": "「{query}」 검색 결과",
+    "noResults": "결과를 찾을 수 없습니다",
+    "tryDifferent": "다른 키워드나 필터를 시도해 보세요",
+    "questionsCount": "{count}문제"
+  },
+  "wrongAnswers": {
+    "title": "오답 노트",
+    "back": "오답으로 돌아가기",
+    "total": "총 {count}개 오답",
+    "empty": "아직 오답이 없습니다. 잘하고 있어요!",
+    "redoAll": "모든 오답 다시 풀기",
+    "viewDetail": "자세히 보기",
+    "redo": "다시 풀기",
+    "yourAnswer": "내 답변",
+    "correct": "정답",
+    "attempted": "{count}번 시도",
+    "attemptedOnce": "1번 시도",
+    "lastAttempt": "최근: {date}"
+  },
+  "settings": {
+    "title": "설정",
+    "profile": "프로필",
+    "displayName": "표시 이름",
+    "email": "이메일",
+    "language": "언어",
+    "uiLanguage": "UI 언어",
+    "questionLanguage": "문제 언어",
+    "account": "계정",
+    "logout": "로그아웃",
+    "save": "저장",
+    "saved": "저장됨",
+    "saving": "저장 중..."
+  },
+  "dashboard": {
+    "welcome": "다시 오신 것을 환영합니다, {name}님!",
+    "totalAnswered": "총 답변 수",
+    "correctRate": "정답률",
+    "wrongAnswers": "오답 수",
+    "myCertifications": "내 자격증",
+    "continuePractice": "연습 계속",
+    "viewWrongAnswers": "오답 보기",
+    "startPractice": "연습 시작",
+    "notStarted": "아직 시작하지 않음",
+    "categoryBreakdown": "카테고리별 정답률",
+    "recentActivity": "최근 활동",
+    "answeredN": "{count}문제 답변",
+    "quickActions": "빠른 작업",
+    "browseCerts": "자격증 둘러보기",
+    "reviewWrong": "오답 복습"
   },
   "auth": {
     "loginTitle": "다시 오신 것을 환영합니다",

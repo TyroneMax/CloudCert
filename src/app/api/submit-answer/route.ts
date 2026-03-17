@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  MOCK_CORRECT_OPTIONS,
-  MOCK_EXPLANATIONS,
-} from "@/lib/data/questions";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,16 +16,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const correctIds = MOCK_CORRECT_OPTIONS[questionId];
-    const explanation = MOCK_EXPLANATIONS[questionId];
+    const supabase = await createClient();
 
-    if (!correctIds) {
-      return NextResponse.json(
-        { error: "Question not found" },
-        { status: 404 }
-      );
+    const { data: options, error: optError } = await supabase
+      .from("options")
+      .select("id, is_correct")
+      .eq("question_id", questionId);
+
+    if (optError || !options || options.length === 0) {
+      return NextResponse.json({ error: "Question not found" }, { status: 404 });
     }
 
+    const correctIds = options.filter((o) => o.is_correct).map((o) => o.id);
     const sortedCorrect = [...correctIds].sort();
     const sortedSelected = [...selectedOptionIds].sort();
 
@@ -36,13 +35,28 @@ export async function POST(request: NextRequest) {
       sortedCorrect.length === sortedSelected.length &&
       sortedCorrect.every((id, i) => id === sortedSelected[i]);
 
-    // TODO: Insert into user_attempts when DB is ready
-    // await supabase.from('user_attempts').insert({ user_id, question_id, selected_option_ids, is_correct })
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("user_attempts").insert({
+        user_id: user.id,
+        question_id: questionId,
+        selected_option_ids: selectedOptionIds,
+        is_correct: isCorrect,
+      });
+    }
+
+    const { data: question } = await supabase
+      .from("questions")
+      .select("explanation")
+      .eq("id", questionId)
+      .single();
+
+    const explanation = question?.explanation ?? "";
 
     return NextResponse.json({
       isCorrect,
       correctOptionIds: correctIds,
-      explanation: explanation ?? "",
+      explanation,
     });
   } catch {
     return NextResponse.json(
