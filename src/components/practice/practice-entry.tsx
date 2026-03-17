@@ -74,6 +74,18 @@ export function PracticeEntry({ data }: PracticeEntryProps) {
             <RotateCcw className="mr-2 h-4 w-4" />
             {t("startFrom")}
           </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            render={
+              <Link
+                href={`/${locale}/practice/${certification.code}?start=1&mode=memorization`}
+              />
+            }
+          >
+            <span className="mr-2">📖</span>
+            {t("memorizationMode")}
+          </Button>
         </div>
       </section>
 

@@ -11,6 +11,7 @@ import {
 } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { routing } from "@/i18n/routing";
+import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import "../globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -105,6 +106,7 @@ export default async function LocaleLayout({
     >
       <body className="min-h-screen antialiased">
         <NextIntlClientProvider messages={messages}>
+          <ScrollToTop />
           {children}
         </NextIntlClientProvider>
       </body>

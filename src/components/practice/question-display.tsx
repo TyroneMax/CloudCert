@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { MarkdownContent } from "@/components/ui/markdown-content";
 import type { Question, QuestionOption } from "@/lib/data/questions";
@@ -55,12 +56,16 @@ export function QuestionDisplay({
 
   return (
     <div className="space-y-6">
-      <p className="text-sm font-medium text-muted-foreground">
-        {question.category_name} · {t("questionN", { n: questionIndex + 1, total: totalCount })}
+      <p className="text-sm font-medium">
+        <span className="text-primary">{question.category_name}</span>
+        <span className="text-muted-foreground">
+          {" · "}
+          {t("questionN", { n: questionIndex + 1, total: totalCount })}
+        </span>
       </p>
 
       <div className="prose prose-neutral dark:prose-invert max-w-none">
-        <p className="text-lg font-medium">{question.question_text}</p>
+        <p className="text-lg font-medium text-foreground">{question.question_text}</p>
       </div>
 
       {isLocked ? (
@@ -78,7 +83,7 @@ export function QuestionDisplay({
                 <button
                   type="button"
                   onClick={() => onSelect(opt.id)}
-                  disabled={isSubmitted || isLocked}
+                  disabled={isSubmitted || isLocked || isReviewMode}
                   className={cn(
                     "flex w-full items-start gap-3 rounded-lg border p-4 text-left transition-colors",
                     "hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -91,10 +96,26 @@ export function QuestionDisplay({
                   </span>
                   <span className="flex-1">{opt.option_text}</span>
                   {isSubmitted && isCorrectOpt && (
-                    <span className="text-green-600 dark:text-green-400" aria-hidden>✓</span>
+                    <motion.span
+                      className="text-green-600 dark:text-green-400"
+                      aria-hidden
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    >
+                      ✓
+                    </motion.span>
                   )}
                   {isSubmitted && selected && !isCorrect && !isCorrectOpt && (
-                    <span className="text-red-600 dark:text-red-400" aria-hidden>✗</span>
+                    <motion.span
+                      className="text-red-600 dark:text-red-400"
+                      aria-hidden
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    >
+                      ✗
+                    </motion.span>
                   )}
                 </button>
               </li>
@@ -105,10 +126,10 @@ export function QuestionDisplay({
 
       {isSubmitted && explanation && (
         <div className="rounded-lg border border-border bg-muted/30 p-4">
-          <p className="text-sm font-semibold">{t("explanation")}</p>
+          <p className="text-sm font-semibold text-primary">{t("explanation")}</p>
           <MarkdownContent
             content={explanation}
-            className="mt-2 text-sm text-muted-foreground prose prose-sm prose-neutral dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-2 prose-li:my-0"
+            className="mt-2 text-sm text-foreground/90 prose prose-sm prose-neutral dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-2 prose-li:my-0"
           />
         </div>
       )}

@@ -41,6 +41,7 @@ export default async function PracticePage({
   const showQuiz =
     start ||
     (mode === "category" && category) ||
+    mode === "memorization" ||
     ids;
 
   if (showQuiz) {
@@ -55,6 +56,8 @@ export default async function PracticePage({
         locale,
       });
     }
+
+    const memorizationMode = mode === "memorization";
 
     if (!questionsResult || questionsResult.questions.length === 0) {
       notFound();
@@ -72,6 +75,7 @@ export default async function PracticePage({
             questions={questionsResult.questions}
             startIndex={startIndex}
             mode={mode === "category" ? "category" : "all"}
+            memorizationMode={memorizationMode}
           />
         </main>
         <Footer />
