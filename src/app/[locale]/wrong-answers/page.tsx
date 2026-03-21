@@ -31,9 +31,30 @@ export default async function WrongAnswersPage({
     redirect(`/${locale}/auth/login?redirect=/${locale}/wrong-answers`);
   }
 
+  const { data: prefs } = await supabase
+    .from("user_preferences")
+    .select(
+      "question_language, practice_auto_next_on_correct, practice_reveal_immediate, practice_always_show_explanation, practice_auto_submit"
+    )
+    .eq("user_id", user.id)
+    .single();
+
+  const questionLanguage = prefs?.question_language ?? locale;
+  const practicePrefs =
+    prefs != null
+      ? {
+          autoNextOnCorrect: prefs.practice_auto_next_on_correct ?? true,
+          revealImmediate: prefs.practice_reveal_immediate ?? false,
+          alwaysShowExplanation: prefs.practice_always_show_explanation ?? false,
+          autoSubmit: prefs.practice_auto_submit ?? true,
+        }
+      : undefined;
+
   if (ids) {
     const questionIds = ids.split(",").filter(Boolean);
-    const questionsResult = await getQuestionsByIds(questionIds, { locale });
+    const questionsResult = await getQuestionsByIds(questionIds, {
+      questionLanguage,
+    });
     if (!questionsResult || questionsResult.questions.length === 0) {
       redirect(`/${locale}/wrong-answers`);
     }
@@ -50,6 +71,7 @@ export default async function WrongAnswersPage({
             mode="all"
             backHref={`/${locale}/wrong-answers`}
             backLabel={t("back")}
+            practicePrefs={practicePrefs}
           />
         </main>
         <Footer />

@@ -1,144 +1,92 @@
-# CloudCert 实施计划
+# Plan: Redesign & Restructure Certification Detail Page
 
-> 跟踪项目开发进度，对应 Phase 1: Foundation 阶段
+## Goal
 
-## 已完成
+1. **Move** the URL from `/practice/aws-saa` → `/certifications/aws-saa` (nested under certifications for consistency)
+2. **Beautify** the certification detail / practice entry page to match the new certifications list page quality
 
-### 1. 项目骨架 ✅
-- Next.js 16 + React 19 + TypeScript 5.9 + Tailwind CSS 4
-- Shadcn/UI 组件库 (Button, Accordion)
-- ESLint + PostCSS 配置
-- `.gitignore` + `.env.local` 环境变量
+## Current Problems (Practice Entry Page)
 
-### 2. Landing Page ✅
-- 8 个 section 完整实现 (Hero, Certifications, Features, How It Works, Pricing, Testimonials, FAQ, CTA)
-- Navbar + Footer 响应式布局
-- Framer Motion 动画
-- 设计文档: `docs/design-landing-page.md`
+1. **Emoji icon 🟧** again instead of real SVG logo
+2. **Flat, lifeless layout** — plain stacked sections with no visual personality
+3. **Boring stats cards** — just numbers in thin-bordered boxes, no color or icons
+4. **Plain category list** — simple bordered rows with no visual hierarchy
+5. **No hero header** — just a small title next to an emoji
+6. **Basic buttons** — default buttons with no visual grouping
+7. **URL mismatch** — `/practice/aws-saa` feels disconnected from `/certifications`; should be `/certifications/aws-saa`
 
-### 3. i18n 国际化 ✅
-- next-intl 4.8 集成，路由重构为 `/[locale]/...`
-- 4 种语言翻译文件: en / zh / ja / ko
-- Navbar 多语言下拉菜单切换器
-- 设计文档: `docs/design-i18n.md`
+## Approach
 
-### 4. Per-Locale 字体 ✅
-- EN: Plus Jakarta Sans / ZH: Noto Sans SC / JA: Zen Kaku Gothic New / KO: Gothic A1
-- CJK 字体 `preload: false` 按需加载
-- JetBrains Mono 等宽字体 (所有语言共用)
+Two parts: (A) Route restructuring, (B) Visual redesign.
 
-### 5. Supabase 基础集成 ✅
-- 客户端 (`src/lib/supabase/client.ts`) + 服务端 (`src/lib/supabase/server.ts`)
-- Middleware session 管理 (`src/lib/supabase/middleware.ts`)
-- 数据库: `users` + `user_preferences` 表 + RLS + Triggers
+### Part A: Route Migration `/practice/[certId]` → `/certifications/[certId]`
 
-### 6. 认证系统 (Auth) ✅
-- 登录页 (`/[locale]/auth/login`) — Google OAuth + Email/Password
-- 注册页 (`/[locale]/auth/register`) — 表单验证 + 邮箱确认提示
-- OAuth 回调 (`/[locale]/auth/callback`)
-- Middleware: i18n 路由 + Auth 受保护路由重定向
-- 设计文档: `docs/design-auth.md`
+Move the route file and update all references:
 
-### 7. Waitlist 候补名单 ✅
-- `waitlist` 表 (email unique, locale, source, created_at) + RLS
-- `WaitlistForm` 组件 — 双变体 (hero 浅色 / cta 深色)
-- Hero Section + CTA Section 集成 waitlist 表单
-- 4 语言翻译 (成功、重复、错误提示)
-- 设计文档: `docs/design-landing-page.md`
+| File | Change |
+|------|--------|
+| `src/app/[locale]/practice/[certId]/page.tsx` | **Move** → `src/app/[locale]/certifications/[certId]/page.tsx` |
+| `src/middleware.ts` | Update `protectedRoutes`: `/practice` → `/certifications` (note: `/certifications` list itself is public, only `[certId]` sub-routes need auth — refine check) |
+| `src/components/certifications/certification-card.tsx` | Link already goes to `/practice/` → update to `/certifications/` |
+| `src/components/practice/practice-entry.tsx` | Internal links `/${locale}/practice/${code}?start=...` → `/${locale}/certifications/${code}?start=...` |
+| `src/components/practice/quiz-view.tsx` | Back href + internal links → update to `/certifications/` |
+| `src/components/practice/category-list.tsx` | Link → update to `/certifications/` |
+| `src/app/[locale]/dashboard/dashboard-client.tsx` | Any practice links → update |
+| `src/app/[locale]/search/search-client.tsx` | Any practice links → update |
+| `src/app/[locale]/wrong-answers/page.tsx` | Any back/redo links → update |
+| `src/app/robots.ts` | Update disallow pattern if present |
+| `src/messages/*.json` | Update "Back to practice" → "Back to certification" if needed |
 
-### 8. 数据库完整 Schema ✅
-- 核心表: `certifications`, `categories`, `questions`, `options`
-- 翻译表: `certification_translations`, `category_translations`, `question_translations`, `option_translations`
-- 业务表: `user_attempts`（`user_subscriptions` 已存在）
-- 管理表: `admin_users`, `audit_logs`, `site_content`, `stripe_events`
-- RLS 策略 + 索引 + 触发器
-- 种子数据: AWS SAA 认证 + 3 分类 + 3 道示例题目
+**Middleware refinement**: The certifications list (`/certifications`) should remain public. Only `/certifications/[certId]` (with a sub-path parameter) requires auth. Will adjust the check to protect paths matching `/certifications/` + slug pattern.
 
-### 9. Dashboard 仪表盘页面 ✅
-- 统计概览卡片 (总答题数、正确率、错题数)
-- 认证卡片列表 (继续练习 / 开始练习)
-- 分类正确率柱状图
-- 最近活动
-- 快捷操作
+### Part B: Visual Redesign of Practice Entry Page
 
-### 10. Practice 练习页面 ✅
-- 数据层接入 Supabase (certifications, practice, questions)
-- 认证列表从数据库获取
-- 练习入口页 + 答题界面
-- 提交答案 API 接入 Supabase (user_attempts)
+#### Hero Header (Certification Info)
+- Full-width gradient banner (provider-colored, same accent system as certification cards)
+- Provider SVG logo in a large rounded container (64×64px)
+- Certification name as big bold title
+- Provider name + description subtitle
+- Gradient top bar matching the card style
 
----
+#### Stats Overview Cards
+- 3-column grid with **colored accent icons**: 
+  - Progress: circular progress ring or bold numbers with an animated progress bar
+  - Correct Rate: percentage with a colored indicator (green if > 70%, yellow if 40-70%, red < 40%)
+  - Wrong Answers: red-tinted card with review link
+- Each card gets a subtle icon (Target, TrendingUp, AlertCircle)
+- Slightly elevated with shadow
 
-## 待实施
+#### Practice Mode Section  
+- Card-style container grouping the action buttons
+- Buttons with better visual hierarchy: primary CTA has gradient or filled style, secondary outlined
+- Icon improvements: real icons instead of 📖 emoji for memorization mode
 
-### 11. Practice 练习页面（增强） ✅
-- 答题界面 (单选 / 多选)
-- 题目导航 (上一题 / 下一题 / 跳转)
-- 答题状态管理 (未答 / 已答 / 标记)
-- 题目内容多语言切换
-- 进度条显示
-- 设计文档: `docs/design-practice.md`
+#### Category List
+- Cards with provider-colored left border accent
+- Progress bar with animated fill (matching certifications page style)
+- Hover effect with subtle lift
+- Category icon or numbered badge
 
-### 13. Explanation 解析功能 ✅
-- 提交答案后显示详细解析
-- 正确/错误选项分析
-- 解析内容多语言支持
-- 设计文档: `docs/design-explanation.md`
+## Files Affected
 
-### 14. Wrong Answers 错题本 ✅
-- 自动收集错题记录
-- 按认证 / 分类筛选
-- 重做单题 / 批量重做
-- 设计文档: `docs/design-wrong-answers.md`
+| File | Action |
+|------|--------|
+| `src/app/[locale]/practice/[certId]/page.tsx` | **Delete** (moved) |
+| `src/app/[locale]/certifications/[certId]/page.tsx` | **Create** (moved from practice) |
+| `src/components/practice/practice-entry.tsx` | **Rewrite** (visual redesign) |
+| `src/components/practice/stats-overview.tsx` | **Rewrite** (visual redesign) |
+| `src/components/practice/category-list.tsx` | **Rewrite** (visual redesign) |
+| `src/components/certifications/certification-card.tsx` | Update link href |
+| `src/components/practice/quiz-view.tsx` | Update link hrefs |
+| `src/app/[locale]/dashboard/dashboard-client.tsx` | Update link hrefs |
+| `src/app/[locale]/search/search-client.tsx` | Update link hrefs |
+| `src/app/[locale]/wrong-answers/page.tsx` | Update link hrefs |
+| `src/middleware.ts` | Refine protected route pattern |
+| `src/app/robots.ts` | Update if needed |
+| `docs/design-practice.md` | Update URLs and visual specs |
 
-### 15. Search 搜索功能 ✅（含关键词高亮）
-- 题目关键词搜索
-- 认证浏览 / 筛选
-- 搜索结果高亮
-- 设计文档: `docs/design-search.md`
+## Risks / Trade-offs
 
-### 16. Settings 设置页面 ✅
-- 个人资料编辑 (Display Name, Avatar)
-- 语言偏好 (UI Language, Question Language)
-- 订阅管理入口
-
-### 17. Stripe 支付集成 ⏭️ 跳过
-- Checkout 流程 (Monthly / Yearly / Single Cert)
-- Webhook 处理 (订阅状态同步)
-- 免费题目限制逻辑
-- 设计文档: `docs/design-profit-model.md`
-
-### 18. SEO + 性能优化 ✅
-- Meta tags / Open Graph / Structured Data
-- 静态页面预渲染
-- 设计文档: `docs/design-seo.md`
-
----
-
-## 建议下一步优先级
-
-| 优先级 | 任务 | 理由 |
-|--------|------|------|
-| 🟠 P1 | Explanation 解析 (#12) | 与 Practice 紧密关联 |
-| 🟠 P1 | Wrong Answers 错题本 (#13) | 与 Practice 紧密关联 |
-| 🟡 P2 | Search 搜索 (#14) | 辅助功能 |
-| 🟡 P2 | Settings 设置 (#15) | 辅助功能 |
-| 🟡 P2 | Stripe 支付 (#16) | 可后期集成 |
-| ⚪ P3 | SEO (#17) | 上线前完善 |
-
----
-
-## 技术栈
-
-| 项目 | 版本 |
-|------|------|
-| Next.js (App Router + Turbopack) | 16.1.x |
-| React | 19.x |
-| TypeScript | 5.9.x |
-| Tailwind CSS | 4.x |
-| Shadcn/UI (Base UI) | latest |
-| next-intl | 4.8.x |
-| @supabase/supabase-js | 2.99.x |
-| @supabase/ssr | latest |
-| Framer Motion (motion/react) | 12.x |
-| JetBrains Mono | Google Fonts |
+- URL change could break bookmarks — but this is a dev-stage project, acceptable
+- Middleware needs careful adjustment so `/certifications` list stays public while `/certifications/[slug]` requires auth
+- Quiz view (the actual question-answering UI) is NOT being redesigned in this PR — only the entry/detail page

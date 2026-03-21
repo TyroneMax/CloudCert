@@ -22,7 +22,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function PracticePage({
+export default async function CertificationDetailPage({
   params,
   searchParams,
 }: {
@@ -33,9 +33,14 @@ export default async function PracticePage({
   const { start, mode, category, ids } = await searchParams;
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const entryData = await getPracticeEntryData(certId, { locale, userId: user?.id ?? null });
+  const entryData = await getPracticeEntryData(certId, {
+    locale,
+    userId: user?.id ?? null,
+  });
   if (!entryData) notFound();
 
   const showQuiz =
@@ -44,16 +49,49 @@ export default async function PracticePage({
     mode === "memorization" ||
     ids;
 
+  let questionLanguage = locale;
+  let practicePrefs:
+    | {
+        autoNextOnCorrect: boolean;
+        revealImmediate: boolean;
+        alwaysShowExplanation: boolean;
+        autoSubmit: boolean;
+      }
+    | undefined;
+
+  if (user) {
+    const { data: prefs } = await supabase
+      .from("user_preferences")
+      .select(
+        "question_language, practice_auto_next_on_correct, practice_reveal_immediate, practice_always_show_explanation, practice_auto_submit"
+      )
+      .eq("user_id", user.id)
+      .single();
+    if (prefs?.question_language) {
+      questionLanguage = prefs.question_language;
+    }
+    if (prefs) {
+      practicePrefs = {
+        autoNextOnCorrect: prefs.practice_auto_next_on_correct ?? true,
+        revealImmediate: prefs.practice_reveal_immediate ?? false,
+        alwaysShowExplanation: prefs.practice_always_show_explanation ?? false,
+        autoSubmit: prefs.practice_auto_submit ?? true,
+      };
+    }
+  }
+
   if (showQuiz) {
     let questionsResult;
     if (ids) {
       const questionIds = ids.split(",").filter(Boolean);
-      questionsResult = await getQuestionsByIds(questionIds, { locale });
+      questionsResult = await getQuestionsByIds(questionIds, {
+        questionLanguage,
+      });
     } else {
       questionsResult = await getQuestionsForPractice(certId, {
         mode: mode === "category" ? "category" : "all",
         categoryId: category ?? undefined,
-        locale,
+        questionLanguage,
       });
     }
 
@@ -76,6 +114,7 @@ export default async function PracticePage({
             startIndex={startIndex}
             mode={mode === "category" ? "category" : "all"}
             memorizationMode={memorizationMode}
+            practicePrefs={practicePrefs}
           />
         </main>
         <Footer />
@@ -87,9 +126,7 @@ export default async function PracticePage({
     <>
       <Navbar />
       <main className="min-h-screen">
-        <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8 lg:py-12">
-          <PracticeEntry data={entryData} />
-        </div>
+        <PracticeEntry data={entryData} />
       </main>
       <Footer />
     </>

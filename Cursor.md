@@ -199,6 +199,10 @@ erDiagram
         uuid user_id FK "unique"
         varchar ui_language "default en"
         varchar question_language "default en"
+        boolean practice_auto_next_on_correct "default true"
+        boolean practice_reveal_immediate "default false"
+        boolean practice_always_show_explanation "default false"
+        boolean practice_auto_submit "default true"
         timestamp created_at
         timestamp updated_at
     }
@@ -410,7 +414,11 @@ erDiagram
 | `id` | uuid | PK | 主键，自动生成 |
 | `user_id` | uuid | FK → users.id, UNIQUE, NOT NULL | 关联用户 ID，唯一约束确保每用户只有一条记录 |
 | `ui_language` | varchar | NOT NULL, DEFAULT 'en' | 网站界面语言，如 `en`（英文）、`zh`（中文），控制菜单/按钮/提示等 UI 元素的语言 |
-| `question_language` | varchar | NOT NULL, DEFAULT 'en' | 答题时的默认题目显示语言，用户可在答题界面临时切换 |
+| `question_language` | varchar | NOT NULL, DEFAULT 'en' | 答题时的默认题目显示语言；服务端拉题时与英文一并加载，用户可在答题界面切换 |
+| `practice_auto_next_on_correct` | boolean | NOT NULL, DEFAULT true | 答对后是否自动进入下一题（与答题页 Popover / 设置同步） |
+| `practice_reveal_immediate` | boolean | NOT NULL, DEFAULT false | 练习模式：进入题目即显示正确选项与解析，不提交、不写 `user_attempts` |
+| `practice_always_show_explanation` | boolean | NOT NULL, DEFAULT false | 答后是否始终展示解析（含答对时，便于阅读后再自动下一题） |
+| `practice_auto_submit` | boolean | NOT NULL, DEFAULT true | 选中选项数与正确答案数一致时是否自动提交判题；为 false 时需手动点提交 |
 | `created_at` | timestamp | NOT NULL, DEFAULT NOW() | 记录创建时间 |
 | `updated_at` | timestamp | NOT NULL, DEFAULT NOW() | 记录最后更新时间 |
 
@@ -643,7 +651,7 @@ CREATE POLICY "Anyone can view" ON option_translations FOR SELECT USING (true);
 | `/auth/register` | 注册页 | 否 | [design-auth.md](docs/design-auth.md) |
 | `/dashboard` | 用户仪表盘 | 是 | [design-dashboard.md](docs/design-dashboard.md) |
 | `/certifications` | 认证列表 | 否（查看）/ 是（练习） | [design-practice.md](docs/design-practice.md) |
-| `/practice/[certId]` | 练习页面 | 是 | [design-practice.md](docs/design-practice.md) |
+| `/certifications/[certId]` | 练习页面 | 是 | [design-practice.md](docs/design-practice.md) |
 | `/wrong-answers` | 错题本 | 是 | [design-wrong-answers.md](docs/design-wrong-answers.md) |
 | `/search` | 搜索页面 | 否 | [design-search.md](docs/design-search.md) |
 | `/roadmap` | 产品路线图 | 否 | [design-roadmap.md](docs/design-roadmap.md) |

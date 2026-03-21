@@ -5,7 +5,14 @@ import { updateSession } from "./lib/supabase/middleware";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-const protectedRoutes = ["/dashboard", "/settings", "/wrong-answers", "/practice"];
+const protectedRoutes = ["/dashboard", "/settings", "/wrong-answers"];
+
+function isProtectedPath(pathname: string): boolean {
+  if (protectedRoutes.some((route) => pathname.startsWith(route))) return true;
+  // /certifications/[slug] requires auth, but /certifications (list) is public
+  if (/^\/certifications\/[^/]+/.test(pathname)) return true;
+  return false;
+}
 
 export async function middleware(request: NextRequest) {
   const intlResponse = intlMiddleware(request);
@@ -15,11 +22,7 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const pathnameWithoutLocale = pathname.replace(/^\/(en|zh|ja|ko)/, "");
 
-  const isProtected = protectedRoutes.some((route) =>
-    pathnameWithoutLocale.startsWith(route)
-  );
-
-  if (isProtected && !user) {
+  if (isProtectedPath(pathnameWithoutLocale) && !user) {
     const locale = pathname.split("/")[1] || routing.defaultLocale;
     const loginUrl = new URL(`/${locale}/auth/login`, request.url);
     loginUrl.searchParams.set("redirect", pathname);

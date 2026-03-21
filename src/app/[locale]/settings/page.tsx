@@ -31,7 +31,9 @@ export default async function SettingsPage({
 
   const { data: prefs } = await supabase
     .from("user_preferences")
-    .select("ui_language, question_language")
+    .select(
+      "ui_language, question_language, practice_auto_next_on_correct, practice_reveal_immediate, practice_always_show_explanation, practice_auto_submit"
+    )
     .eq("user_id", user.id)
     .single();
 
@@ -46,6 +48,10 @@ export default async function SettingsPage({
             uiLanguage={prefs?.ui_language ?? "en"}
             questionLanguage={prefs?.question_language ?? "en"}
             locale={locale}
+            practiceAutoNextOnCorrect={prefs?.practice_auto_next_on_correct ?? true}
+            practiceRevealImmediate={prefs?.practice_reveal_immediate ?? false}
+            practiceAlwaysShowExplanation={prefs?.practice_always_show_explanation ?? false}
+            practiceAutoSubmit={prefs?.practice_auto_submit ?? true}
           />
         </div>
       </main>

@@ -108,7 +108,7 @@ export function DashboardClient({ data, displayName, locale }: DashboardClientPr
                 )}
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Button size="sm" render={<Link href={`/${locale}/practice/${cert.code}?start=${hasProgress ? cert.answered_count + 1 : 1}`} />}>
+                  <Button size="sm" render={<Link href={`/${locale}/certifications/${cert.code}?start=${hasProgress ? cert.answered_count + 1 : 1}`} />}>
                     <BookOpen className="mr-2 h-4 w-4" />
                     {hasProgress ? t("continuePractice") : t("startPractice")}
                   </Button>

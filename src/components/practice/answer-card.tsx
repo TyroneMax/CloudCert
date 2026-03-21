@@ -18,7 +18,7 @@ type AnswerCardProps = {
   onQuestionClick: (index: number) => void;
 };
 
-const GRID_SIZE = 10;
+const COLS_CLASS = "grid-cols-5 sm:grid-cols-6";
 
 function QuestionGrid({
   indices,
@@ -34,15 +34,11 @@ function QuestionGrid({
   t: (key: string, values?: Record<string, number | string>) => string;
 }) {
   return (
-    <div
-      className="grid gap-1"
-      style={{
-        gridTemplateColumns: `repeat(${Math.min(GRID_SIZE, indices.length)}, minmax(0, 1fr))`,
-      }}
-    >
+    <div className={cn("grid gap-2", COLS_CLASS)}>
       {indices.map((globalIdx, localIdx) => {
-        const status = questionStatuses[globalIdx] ?? "unanswered";
+        const answered = questionStatuses[globalIdx] ?? "unanswered";
         const isCurrent = globalIdx === currentIndex;
+        const displayNum = localIdx + 1;
 
         return (
           <motion.button
@@ -50,34 +46,43 @@ function QuestionGrid({
             type="button"
             onClick={() => onQuestionClick(globalIdx)}
             className={cn(
-              "flex h-8 w-8 items-center justify-center rounded text-sm font-medium transition-colors",
+              "flex aspect-square min-h-9 min-w-9 items-center justify-center rounded-lg text-sm font-bold transition-colors",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              status === "correct" &&
-                "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400",
-              status === "wrong" &&
-                "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400",
-              status === "current" &&
-                "border-2 border-primary bg-primary/10 text-primary",
-              status === "unanswered" &&
-                "border border-border bg-muted/30 text-muted-foreground hover:bg-muted",
-              status === "locked" &&
-                "border border-border bg-muted/50 text-muted-foreground"
+              answered === "correct" &&
+                "bg-emerald-500 text-white shadow-sm dark:bg-emerald-600 dark:text-white",
+              answered === "wrong" &&
+                "bg-rose-500 text-white shadow-sm dark:bg-rose-600 dark:text-white",
+              answered === "unanswered" &&
+                "border border-border bg-muted/40 text-muted-foreground hover:bg-muted",
+              answered === "locked" &&
+                "border border-border bg-muted/60 text-muted-foreground",
+              isCurrent &&
+                "ring-2 ring-primary ring-offset-2 ring-offset-card dark:ring-offset-card"
             )}
             aria-label={
-              status === "locked"
-                ? t("lockedAria", { n: localIdx })
-                : t("questionAria", { n: localIdx, status })
+              answered === "locked"
+                ? t("lockedAria", { n: displayNum })
+                : t("questionAria", {
+                    n: displayNum,
+                    status:
+                      answered === "correct"
+                        ? t("answerStatus.correct")
+                        : answered === "wrong"
+                          ? t("answerStatus.wrong")
+                          : t("answerStatus.unanswered"),
+                  })
             }
+            aria-current={isCurrent ? "true" : undefined}
             initial={false}
             animate={{
-              scale: isCurrent ? 1.05 : 1,
-              transition: { type: "spring", stiffness: 300, damping: 24 },
+              scale: isCurrent ? 1.04 : 1,
+              transition: { type: "spring", stiffness: 320, damping: 22 },
             }}
           >
-            {status === "locked" ? (
+            {answered === "locked" ? (
               <Lock className="h-3.5 w-3.5" />
             ) : (
-              localIdx
+              displayNum
             )}
           </motion.button>
         );
@@ -106,33 +111,35 @@ export function AnswerCard({
 
   return (
     <motion.div
-      className="flex flex-col rounded-xl border bg-card p-4"
+      className="flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
     >
-      <div className="mb-4 flex shrink-0 flex-wrap items-center gap-3 text-sm">
-        <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
-          <span aria-hidden>✓</span>
-          {correctCount}
-        </span>
-        <span className="flex items-center gap-1 text-red-600 dark:text-red-400">
-          <span aria-hidden>✗</span>
-          {wrongCount}
-        </span>
-        <span className="text-muted-foreground">
-          {t("unanswered")} {unansweredCount}
-        </span>
-        <span className="text-muted-foreground">
-          {t("total")} {questions.length}
-        </span>
+      <div className="border-b border-border/60 bg-muted/30 px-4 py-3">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2.5 py-0.5 font-medium text-emerald-700 dark:text-emerald-400">
+            <span aria-hidden>✓</span>
+            {correctCount}
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/15 px-2.5 py-0.5 font-medium text-rose-700 dark:text-rose-400">
+            <span aria-hidden>✗</span>
+            {wrongCount}
+          </span>
+          <span className="text-muted-foreground">
+            {t("unanswered")} {unansweredCount}
+          </span>
+          <span className="text-muted-foreground">
+            · {t("total")} {questions.length}
+          </span>
+        </div>
       </div>
 
-      <div className="max-h-[400px] min-h-0 overflow-y-auto">
-        <div className="space-y-4">
+      <div className="max-h-[min(420px,55vh)] min-h-0 overflow-y-auto px-4 py-4">
+        <div className="space-y-6">
           {singleChoiceIndices.length > 0 && (
             <div>
-              <p className="mb-2 text-xs font-medium text-muted-foreground">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {t("singleChoice")}
               </p>
               <QuestionGrid
@@ -146,7 +153,7 @@ export function AnswerCard({
           )}
           {multipleChoiceIndices.length > 0 && (
             <div>
-              <p className="mb-2 text-xs font-medium text-muted-foreground">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {t("multipleChoice")}
               </p>
               <QuestionGrid
@@ -161,11 +168,8 @@ export function AnswerCard({
         </div>
       </div>
 
-      <div className="mt-4 flex shrink-0 flex-wrap gap-2 text-xs text-muted-foreground">
-        <span>✓ {t("legendCorrect")}</span>
-        <span>✗ {t("legendWrong")}</span>
-        <span>○ {t("legendUnanswered")}</span>
-        <span>🔒 {t("legendLocked")}</span>
+      <div className="border-t border-border/60 bg-muted/15 px-4 py-2.5">
+        <p className="text-xs leading-relaxed text-muted-foreground">{t("answerCardTip")}</p>
       </div>
     </motion.div>
   );

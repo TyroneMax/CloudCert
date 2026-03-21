@@ -141,7 +141,7 @@ export function SearchClient({
                 {results.certifications.map((c) => (
                   <Link
                     key={c.id}
-                    href={`/${locale}/practice/${c.code}`}
+                    href={`/${locale}/certifications/${c.code}`}
                     className="block rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50"
                   >
                     <div className="flex items-center gap-3">
@@ -168,7 +168,7 @@ export function SearchClient({
                 {results.questions.map((q) => (
                   <Link
                     key={q.id}
-                    href={`/${locale}/practice/${q.cert_code}?ids=${q.id}`}
+                    href={`/${locale}/certifications/${q.cert_code}?ids=${q.id}`}
                     className="block rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50"
                   >
                     <p className="text-xs text-muted-foreground">
