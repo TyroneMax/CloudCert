@@ -18,7 +18,9 @@
     "faq": "자주 묻는 질문",
     "dashboard": "대시보드",
     "openMenu": "메뉴 열기",
-    "closeMenu": "메뉴 닫기"
+    "closeMenu": "메뉴 닫기",
+    "settings": "설정",
+    "userMenu": "계정 메뉴"
   },
   "landing": {
     "badge": "클라우드 자격증 대비",
@@ -248,6 +250,9 @@
   "settings": {
     "title": "설정",
     "subtitle": "프로필, 언어 및 연습 환경설정.",
+    "profileCardHint": "대시보드와 앱 전체에 표시됩니다.",
+    "languageCardHint": "저장 후 새 UI 언어로 다시 로드될 수 있습니다. 문제 언어는 연습 기본값에 영향을 줍니다.",
+    "practiceCardHint": "퀴즈 연습의 기본값이며, 연습 화면에서 일부는 변경할 수 있습니다.",
     "dashboard": "대시보드",
     "profile": "프로필",
     "displayName": "표시 이름",
@@ -272,6 +277,13 @@
   },
   "dashboard": {
     "welcome": "다시 오신 것을 환영합니다, {name}님!",
+    "tabOverview": "개요",
+    "tabAccount": "계정 및 환경설정",
+    "tabsAria": "대시보드 섹션",
+    "heroDefaultTagline": "자격증 진행 상황과 연습 설정을 한곳에서 관리하세요.",
+    "heroStatsLine": "{count}문제 답변 · 정답률 {rate}%",
+    "fullSettingsHint": "자세한 옵션은 설정 페이지에서 변경할 수 있습니다.",
+    "openFullSettings": "전체 설정 열기",
     "totalAnswered": "총 답변 수",
     "correctRate": "정답률",
     "wrongAnswers": "오답 수",

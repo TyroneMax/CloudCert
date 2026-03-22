@@ -18,7 +18,9 @@
     "faq": "よくある質問",
     "dashboard": "ダッシュボード",
     "openMenu": "メニューを開く",
-    "closeMenu": "メニューを閉じる"
+    "closeMenu": "メニューを閉じる",
+    "settings": "設定",
+    "userMenu": "アカウントメニュー"
   },
   "landing": {
     "badge": "クラウド認定試験対策",
@@ -248,6 +250,9 @@
   "settings": {
     "title": "設定",
     "subtitle": "プロフィール、言語、練習の設定。",
+    "profileCardHint": "ダッシュボードとアプリ内に表示されます。",
+    "languageCardHint": "保存後、新しいUI言語で再読み込みされる場合があります。問題言語は練習のデフォルトに影響します。",
+    "practiceCardHint": "クイズ練習の既定値です。練習画面で変更できる項目もあります。",
     "dashboard": "ダッシュボード",
     "profile": "プロフィール",
     "displayName": "表示名",
@@ -272,6 +277,13 @@
   },
   "dashboard": {
     "welcome": "おかえりなさい、{name}さん！",
+    "tabOverview": "概要",
+    "tabAccount": "アカウントと設定",
+    "tabsAria": "ダッシュボードのセクション",
+    "heroDefaultTagline": "認定の進捗と練習設定をまとめて管理。",
+    "heroStatsLine": "{count}問回答 · 正答率 {rate}%",
+    "fullSettingsHint": "詳細は設定ページで変更できます。",
+    "openFullSettings": "設定ページを開く",
     "totalAnswered": "総回答数",
     "correctRate": "正答率",
     "wrongAnswers": "不正解数",

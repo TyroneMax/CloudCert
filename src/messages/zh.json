@@ -18,7 +18,9 @@
     "faq": "常见问题",
     "dashboard": "仪表盘",
     "openMenu": "打开菜单",
-    "closeMenu": "关闭菜单"
+    "closeMenu": "关闭菜单",
+    "settings": "设置",
+    "userMenu": "账户菜单"
   },
   "landing": {
     "badge": "云认证备考平台",
@@ -248,6 +250,9 @@
   "settings": {
     "title": "设置",
     "subtitle": "个人资料、语言与练习偏好。",
+    "profileCardHint": "将显示在仪表盘及应用内。",
+    "languageCardHint": "保存后可能会以新的界面语言重新加载。题目语言影响练习默认显示。",
+    "practiceCardHint": "作为答题练习的默认行为；部分选项仍可在练习页面临时修改。",
     "dashboard": "控制台",
     "profile": "个人资料",
     "displayName": "显示名称",
@@ -272,6 +277,13 @@
   },
   "dashboard": {
     "welcome": "欢迎回来，{name}！",
+    "tabOverview": "学习概览",
+    "tabAccount": "账号与偏好",
+    "tabsAria": "仪表盘分区",
+    "heroDefaultTagline": "在一处查看认证进度并管理练习偏好。",
+    "heroStatsLine": "已累计作答 {count} 题 · 正确率 {rate}%",
+    "fullSettingsHint": "完整选项请见设置页。",
+    "openFullSettings": "打开完整设置",
     "totalAnswered": "总答题数",
     "correctRate": "正确率",
     "wrongAnswers": "错题数",

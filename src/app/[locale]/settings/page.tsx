@@ -41,7 +41,7 @@ export default async function SettingsPage({
     <>
       <Navbar />
       <main className="min-h-screen">
-        <div className="mx-auto max-w-2xl px-4 py-8 lg:px-8 lg:py-12">
+        <div className="mx-auto max-w-3xl px-4 py-8 lg:px-8 lg:py-12">
           <SettingsClient
             displayName={profile?.display_name ?? ""}
             email={user.email ?? ""}

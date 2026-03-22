@@ -18,7 +18,9 @@
     "faq": "FAQ",
     "dashboard": "Dashboard",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "settings": "Settings",
+    "userMenu": "Account menu"
   },
   "landing": {
     "badge": "Cloud Certification Prep",
@@ -248,6 +250,9 @@
   "settings": {
     "title": "Settings",
     "subtitle": "Profile, language, and practice preferences.",
+    "profileCardHint": "Shown on your dashboard and across the app.",
+    "languageCardHint": "Saving may reload the site in the new UI language. Question language defaults in practice.",
+    "practiceCardHint": "Defaults for quiz practice; some can still be changed on the practice screen.",
     "dashboard": "Dashboard",
     "profile": "Profile",
     "displayName": "Display Name",
@@ -272,6 +277,13 @@
   },
   "dashboard": {
     "welcome": "Welcome back, {name}!",
+    "tabOverview": "Overview",
+    "tabAccount": "Account & preferences",
+    "tabsAria": "Dashboard sections",
+    "heroDefaultTagline": "Track certification progress and preferences in one place.",
+    "heroStatsLine": "{count} questions answered · {rate}% correct rate",
+    "fullSettingsHint": "More options on the full settings page.",
+    "openFullSettings": "Open full settings",
     "totalAnswered": "Total Answered",
     "correctRate": "Correct Rate",
     "wrongAnswers": "Wrong Answers",

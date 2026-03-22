@@ -3,8 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { Menu, X, Cloud, Globe, Check } from "lucide-react";
+import { Menu, X, Cloud, Globe, Check, LayoutDashboard, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { motion, AnimatePresence } from "motion/react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -26,10 +27,44 @@ const localeOptions = [
   { code: "ko", label: "한국어" },
 ];
 
+function userNavInitials(user: User) {
+  const meta = user.user_metadata as Record<string, unknown> | undefined;
+  const name =
+    typeof meta?.full_name === "string"
+      ? meta.full_name
+      : typeof meta?.name === "string"
+        ? meta.name
+        : typeof meta?.display_name === "string"
+          ? meta.display_name
+          : "";
+  const n = name.trim();
+  if (n.length > 0) {
+    const parts = n.split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return n.slice(0, 2).toUpperCase();
+  }
+  const email = user.email ?? "?";
+  return email.split("@")[0]?.slice(0, 2).toUpperCase() ?? "?";
+}
+
+function userNavAvatarUrl(user: User): string | null {
+  const meta = user.user_metadata as Record<string, unknown> | undefined;
+  const u =
+    typeof meta?.avatar_url === "string"
+      ? meta.avatar_url
+      : typeof meta?.picture === "string"
+        ? meta.picture
+        : "";
+  return u.length > 4 ? u : null;
+}
+
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const langMenuRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("nav");
   const tc = useTranslations("common");
@@ -49,6 +84,7 @@ export function Navbar() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setMobileMenuOpen(false);
+    setUserMenuOpen(false);
     router.push(`/${locale}`);
     router.refresh();
   };
@@ -145,14 +181,53 @@ export function Navbar() {
           </div>
 
           {user ? (
-            <>
-              <Button variant="ghost" size="sm" render={<Link href={`/${locale}/dashboard`} />}>
-                {t("dashboard")}
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                {tc("logout")}
-              </Button>
-            </>
+            <Popover open={userMenuOpen} onOpenChange={setUserMenuOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-xs font-semibold text-primary ring-2 ring-primary/20 ring-offset-2 ring-offset-background transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  aria-label={t("userMenu")}
+                  aria-expanded={userMenuOpen}
+                >
+                  {userNavAvatarUrl(user) ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- OAuth avatar URL
+                    <img
+                      src={userNavAvatarUrl(user)!}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    userNavInitials(user)
+                  )}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-52 p-1.5" side="bottom">
+                <Link
+                  href={`/${locale}/dashboard`}
+                  className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+                  onClick={() => setUserMenuOpen(false)}
+                >
+                  <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
+                  {t("dashboard")}
+                </Link>
+                <Link
+                  href={`/${locale}/settings`}
+                  className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+                  onClick={() => setUserMenuOpen(false)}
+                >
+                  <Settings className="h-4 w-4 text-muted-foreground" />
+                  {t("settings")}
+                </Link>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm font-medium text-foreground transition-colors hover:bg-accent"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4 text-muted-foreground" />
+                  {tc("logout")}
+                </button>
+              </PopoverContent>
+            </Popover>
           ) : (
             <>
               <Button variant="ghost" size="sm" render={<Link href={`/${locale}/auth/login`} />}>
@@ -233,6 +308,11 @@ export function Navbar() {
                     <Link href={`/${locale}/dashboard`} className="block" onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="outline" className="w-full">
                         {t("dashboard")}
+                      </Button>
+                    </Link>
+                    <Link href={`/${locale}/settings`} className="block" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full">
+                        {t("settings")}
                       </Button>
                     </Link>
                     <Button variant="outline" className="w-full" onClick={handleLogout}>
